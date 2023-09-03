@@ -1,6 +1,5 @@
 project('Agente Viajero', 'cpp',
-  version : '0.1',
-  default_options : ['optimization=plain'])
+  version : '0.1')
 
 sqlite_dep = dependency('sqlite3')
 
