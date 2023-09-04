@@ -87,9 +87,6 @@ class Bdd {
         }
 
         double edges(int i, int j) {
-
-            std::cout << i << ", ";
-            std::cout << j << " " << std::endl;
             std::string id_1Str = std::to_string(i);
             std::string id_2Str = std::to_string(j);
             std::string query = "SELECT * FROM connections WHERE ";
