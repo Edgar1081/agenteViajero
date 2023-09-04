@@ -32,5 +32,6 @@
 *.app
 
 #xd
+debug
 release
 build
