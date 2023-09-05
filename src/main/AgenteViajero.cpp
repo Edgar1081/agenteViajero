@@ -10,7 +10,9 @@ int main(int argc, char *argv[]) {
     int size = input->get_size();
     int * ins = input->get_array();
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size);
-    double e = instance->get_edge(0,0);
+    double e = instance->get_edge(0,6);
+    double max = instance->get_max_edge();
+    std::cout << max << std::endl;
 
     return 0;
 }
