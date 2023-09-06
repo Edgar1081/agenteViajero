@@ -18,7 +18,7 @@ public:
     ~City() {
     }
 
-    int getId() const { return id; }
+    int get_id() const { return id; }
     std::string getName() const { return name; }
     std::string getCountry() const { return country; }
     int getPopulation() const { return population; }

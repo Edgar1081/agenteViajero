@@ -38,8 +38,7 @@ class Io {
                 int idVertice = std::stoi(token);
                 sol[i++] = idVertice;
             }
-
-            size = length; // Update the 'size' member variable
+            size = length;
             instance = sol;
             file.close();
         }

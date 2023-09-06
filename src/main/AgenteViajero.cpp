@@ -12,7 +12,8 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size);
     double e = instance->get_edge(0,6);
     double max = instance->get_max_edge();
-    std::cout << max << std::endl;
-
+    double norm = instance->get_normalizer();
+    std::cout << std::setprecision(15)<< max << std::endl;
+    std::cout << e << std::endl;
     return 0;
 }

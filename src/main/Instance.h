@@ -7,31 +7,41 @@
 
 class Instance {
     private:
-        int* sol;
+        std::shared_ptr<City>* sol;
+        std::list<double> L;
         double normalizer;
-        double* heavy_list;
         double max_edge = 0;
         std::shared_ptr<Bdd> bdd;
         int size;
         double** edges;
 
         void manage_w(int i, int j){
-            std::list<double> L;
-            if (i == j) {
-                edges[i][j] = 0;
+            if(i == j)
+                return;
+            int id_u = sol[i]->get_id();
+            int id_v = sol[j]->get_id();
+            if (id_u == id_v) {
+                edges[id_u][id_v] = 0;
             } else {
-                int city1_id = sol[i];
-                int city2_id = sol[j];
-                double w = bdd->edges(city1_id, city2_id);
+                double w = bdd->edges(id_u, id_v);
                 if(w!=-1)
                     L.push_back(w);
-                edges[i][j] = w;
+                edges[id_u][id_v] = w;
                 if(max_edge < w)
                     max_edge = w;
             }
-            normalizer = 0;
-            for (const double& element : myList) {
-                normalizer+= element;
+        }
+
+        void calc_norm(){
+            int length = static_cast<int>(L.size());
+            if(length < size){
+                for (const double& element : L)
+                    normalizer += element;
+            }else{
+                auto it = L.begin();
+                for (int i = 0; i < size-1 && it != L.end(); ++i, ++it) {
+                    normalizer += *it;
+                }
             }
         }
 
@@ -40,10 +50,10 @@ class Instance {
                 for (int j = 0; j < size; j++) {
                     double w = edges[i][j];
                     if(w == -1){
-                        int city1_id = sol[i];
-                        int city2_id = sol[j];
-                        std::shared_ptr<City> city1 = bdd->getCity(city1_id);
-                        std::shared_ptr<City> city2 = bdd->getCity(city2_id);
+                        int city1_id = sol[i]->get_id();
+                        int city2_id = sol[j]->get_id();
+                        std::shared_ptr<City> city1 = bdd->get_city(city1_id);
+                        std::shared_ptr<City> city2 = bdd->get_city(city2_id);
                         w = Cost::delta(city1->getLat(), city1->getLon(),
                                         city2->getLat(), city2->getLon());
                         edges[i][j] = w * max_edge;
@@ -54,20 +64,28 @@ class Instance {
 
     public:
         Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size) :
-            sol(_sol), bdd(_bdd), size(_size) {
-            edges = new double*[size];
+            bdd(_bdd), size(_size) {
+            sol = new std::shared_ptr<City>[size];
+
+            for(int i = 0; i < size; i++){
+                sol[i] = bdd->get_city(_sol[i]);
+            }
+
+            normalizer = 0;
+            edges = new double*[1092];
             for (int i = 0; i < size; i++) {
-                edges[i] = new double[size];
+                edges[i] = new double[1092];
                 for (int j = 0; j < size; j++) {
                     manage_w(i,j);
                 }
             }
+            L.sort();
+            L.reverse();
+            calc_norm();
             complete();
         }
 
         int get_edge(int vertex1, int vertex2) {
-            //std::cout << sol[vertex1] << ", " << sol[vertex2] << std::endl;
-            //std::cout << edges[vertex1][vertex2] << std::endl;
             return edges[vertex1][vertex2];
         }
 
@@ -85,6 +103,7 @@ class Instance {
         double get_normalizer(){
             return normalizer;
         }
+
 
         ~Instance() {
             delete[] sol;

@@ -95,7 +95,7 @@ class Bdd {
 
 
 
-        std::unique_ptr<City> getCity(int id) {
+        std::shared_ptr<City> get_city(int id) {
             std::string idStr = std::to_string(id);
 
             std::string queryString = "SELECT * FROM cities WHERE id = " + idStr + ";";
@@ -115,7 +115,7 @@ class Bdd {
             }
 
             sqlite3_finalize(stmt);
-        
-            return std::make_unique<City>(0, "xd", "xdxd", 0, lat, lon);
+
+            return std::make_shared<City>(id, "xd", "xdxd", 0, lat, lon);
         }
 };
