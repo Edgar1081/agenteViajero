@@ -16,15 +16,12 @@ class Instance {
         double** edges;
 
         void manage_w(int i, int j) {
-            std::cout << "Debug: i = " << i << ", j = " << j << std::endl;
-
             int id_u = sol[i]->get_id();
             int id_v = sol[j]->get_id();
             if (id_u == id_v) {
                 edges[id_u][id_v] = 0;
             } else {
                 double w = bdd->edges(id_u, id_v);
-                std::cout << "Debug: w = " << w << std::endl;
                 if (w != -1) {
                     L.push_back(w);
                 }
@@ -52,15 +49,13 @@ class Instance {
         void complete() {
             for (int i = 0; i < size; i++) {
                 for (int j = 0; j < size; j++) {
-                    double w = edges[i][j];
+                    int city1_id = sol[i]->get_id();
+                    int city2_id = sol[j]->get_id();
+                    double w = edges[city1_id][city2_id];
                     if(w == -1){
-                        int city1_id = sol[i]->get_id();
-                        int city2_id = sol[j]->get_id();
-                        std::shared_ptr<City> city1 = bdd->get_city(city1_id);
-                        std::shared_ptr<City> city2 = bdd->get_city(city2_id);
-                        w = Cost::delta(city1->get_lat(), city1->getLon(),
-                                        city2->get_lat(), city2->getLon());
-                        edges[i][j] = w * max_edge;
+                        w = Cost::delta(sol[i]->get_lat(), sol[i]->getLon(),
+                                        sol[j]->get_lat(), sol[j]->getLon());
+                        edges[city1_id][city2_id] = w * max_edge;
                     }
                 }
             }
@@ -74,10 +69,10 @@ class Instance {
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
             }
-            edges = new double*[1092];
-            for (int i = 0; i < 1092; i++) {
-                edges[i] = new double[1092];
-                for (int j = 0; j < 1092; j++) {
+            edges = new double*[1093];
+            for (int i = 0; i < 1093; i++) {
+                edges[i] = new double[1093];
+                for (int j = 0; j < 1093; j++) {
                     edges[i][j] = 0.0;
                 }
             }
@@ -112,6 +107,19 @@ class Instance {
 
         double get_normalizer(){
             return normalizer;
+        }
+
+
+        double cost(){
+            double sum = 0;
+            for(int i = 1; i < size; i++){
+                int v = sol[i] -> get_id();
+                int u = sol[i-1] -> get_id();
+                std::cout << u << ", " << v;
+                std::cout << ": " << edges[u][v] << std::endl;
+                sum += edges[u][v];
+            }
+            return sum/normalizer;
         }
 
 
