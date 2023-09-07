@@ -24,5 +24,5 @@ class City {
         std::string getCountry() const { return country; }
         int getPopulation() const { return population; }
         double get_lat() const { return lat; }
-        double getLon() const { return lon; }
+        double get_lon() const { return lon; }
 };

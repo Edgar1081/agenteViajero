@@ -1,36 +1,35 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 class Cost {
+
     private:
-
-        static double C(int ulat, int ulon, int vlat, int vlon) {
-            return 2 * atan2(sqrt(A(ulat, ulon, vlat, vlon)), sqrt(1 - A(ulat, ulon, vlat, vlon)));
+        static double degreesToRadians(double degrees) {
+            double radians = degrees * (M_PI / 180);
+            return radians;
         }
 
-        static double A(int ulat, int ulon, int vlat, int vlon) {
-            double vLat = (vlat) * (M_PI)/180;
-            double vLon = (vlon) * (M_PI)/180;
-            double uLat = (ulat) * (M_PI)/180;
-            double uLon = (ulon) * (M_PI)/180;
-
-            double a =  pow(sin((vLat - uLat) / 2), 2);
-            double b = cos(vLat) * cos(uLat);
-            double c =  pow(sin(((vLon - uLon) / 2)), 2);
-            double d = b * c;
-            return a + d;
-
-        }
     public:
 
-        static double delta(int ulat, int ulon, int vlat, int vlon) {
+        static double delta(double ulat, double ulon, double vlat, double vlon) {
             const int radius = 6373000;
-            double res = radius * C(ulat, ulon, vlat, vlon);
-            return res;
-        }
+            double vLat = degreesToRadians(vlat);
+            double vLon = degreesToRadians(vlon);
+            double uLat = degreesToRadians(ulat);
+            double uLon = degreesToRadians(ulon);
 
-        static double cost(int * sol){
+            double latdiff = (vLat-uLat)/2;
+            double latdiffSin = sin(latdiff);
 
+            double londiff = (vLon-uLon)/2;
+            double londiffSin = sin(londiff);
+
+            double a =  pow(latdiffSin, 2) +
+                cos(uLat) * cos(vLat) *
+                pow(londiffSin, 2);
+
+            double c = 2 * atan2(sqrt(a), sqrt(1-a));
+            return radius * c;
         }
 };

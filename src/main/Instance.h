@@ -2,6 +2,7 @@
 #include <list>
 #include <iomanip>
 #include <memory>
+#include <random>
 #include "Bdd.h"
 #include "Cost.h"
 
@@ -14,6 +15,9 @@ class Instance {
         std::shared_ptr<Bdd> bdd;
         int size;
         double** edges;
+        std::mt19937 rng;
+        std::uniform_int_distribution<int> distribution;
+
 
         void manage_w(int i, int j) {
             int id_u = sol[i]->get_id();
@@ -26,7 +30,7 @@ class Instance {
                     L.push_back(w);
                 }
                 edges[id_u][id_v] = w;
-
+                //edges[id_v][id_u] = w;
                 if (max_edge < w) {
                     max_edge = w;
                 }
@@ -53,17 +57,18 @@ class Instance {
                     int city2_id = sol[j]->get_id();
                     double w = edges[city1_id][city2_id];
                     if(w == -1){
-                        w = Cost::delta(sol[i]->get_lat(), sol[i]->getLon(),
-                                        sol[j]->get_lat(), sol[j]->getLon());
+                        w = Cost::delta(sol[i]->get_lat(), sol[i]->get_lon(),
+                                        sol[j]->get_lat(), sol[j]->get_lon());
                         edges[city1_id][city2_id] = w * max_edge;
+                        //edges[city2_id][city1_id] = w * max_edge;
                     }
                 }
             }
         }
 
     public:
-        Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size) :
-            bdd(_bdd), size(_size) {
+        Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size, unsigned int seed) :
+            bdd(_bdd), size(_size),  rng(seed), distribution(0, size){
             sol = new std::shared_ptr<City>[size];
 
             for (int i = 0; i < size; i++) {
@@ -83,7 +88,6 @@ class Instance {
                     manage_w(i, j);
                 }
             }
-
             L.sort();
             L.reverse();
             calc_norm();
@@ -99,6 +103,16 @@ class Instance {
         }
 
         void permute() {
+            int i = distribution(rng);
+            int j = distribution(rng);
+            swap(i, j);
+        }
+
+        void swap(int i, int j){
+            std::shared_ptr<City> u = sol[i];
+            std::shared_ptr<City> v = sol[j];
+            sol[i] = v;
+            sol[j] = u;
         }
 
         double get_max_edge() {
@@ -113,10 +127,8 @@ class Instance {
         double cost(){
             double sum = 0;
             for(int i = 1; i < size; i++){
-                int v = sol[i] -> get_id();
                 int u = sol[i-1] -> get_id();
-                std::cout << u << ", " << v;
-                std::cout << ": " << edges[u][v] << std::endl;
+                int v = sol[i] -> get_id();
                 sum += edges[u][v];
             }
             return sum/normalizer;
