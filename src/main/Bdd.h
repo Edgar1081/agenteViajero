@@ -13,6 +13,7 @@ class Bdd {
 
     public:
         Bdd(const std::string& route) : db(nullptr), route(route), rc(-1) {
+            sqlite3_initialize();
             int result = sqlite3_open(route.c_str(), &db);
             if (result != SQLITE_OK) {
                 std::cerr << "SQLite error: " << sqlite3_errmsg(db) << std::endl;
@@ -79,43 +80,35 @@ class Bdd {
             sqlite3_stmt *stmt;
 
             rc = sqlite3_prepare_v2(db, queryChar, -1, &stmt, 0);
+            double distance = -1;
 
-            double distance = 0;
-
-            if (sqlite3_step(stmt) == SQLITE_ROW) {
+            if (sqlite3_step(stmt) == SQLITE_ROW)
                 distance = sqlite3_column_double(stmt, 2);
-            } else {
-                return -1;
-            }
-
-
             sqlite3_finalize(stmt);
             return distance;
         }
 
-
-
         std::shared_ptr<City> get_city(int id) {
             std::string idStr = std::to_string(id);
-
             std::string queryString = "SELECT * FROM cities WHERE id = " + idStr + ";";
-
             const char* query = queryString.c_str();
-
             sqlite3_stmt *stmt;
-
             rc = sqlite3_prepare_v2(db, query, -1, &stmt, 0);
 
             double lat = 0;
             double lon = 0;
+            int pop = -1;
+            int idbdd = -1;
 
             while (sqlite3_step(stmt) == SQLITE_ROW) {
+                idbdd = sqlite3_column_int(stmt, 0);
+                pop = sqlite3_column_int(stmt, 3);
                 lat = sqlite3_column_double(stmt, 4);
                 lon = sqlite3_column_double(stmt, 5);
             }
 
+            std::shared_ptr<City> city = std::make_shared<City>(idbdd, "", "", pop, lat, lon);
             sqlite3_finalize(stmt);
-
-            return std::make_shared<City>(id, "xd", "xdxd", 0, lat, lon);
+            return city;
         }
 };

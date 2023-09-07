@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     int size = input->get_size();
     int * ins = input->get_array();
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size);
-    double e = instance->get_edge(0,6);
+    double e = instance->get_edge(1,7);
     double max = instance->get_max_edge();
     double norm = instance->get_normalizer();
     std::cout << std::setprecision(15)<< max << std::endl;
