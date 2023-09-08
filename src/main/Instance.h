@@ -14,7 +14,7 @@ class Instance {
         double max_edge = 0;
         std::shared_ptr<Bdd> bdd;
         int size;
-        double** edges;
+        double edges[1093][1093];
         std::mt19937 rng;
         std::uniform_int_distribution<int> distribution;
 
@@ -29,10 +29,25 @@ class Instance {
                 if (w != -1) {
                     L.push_back(w);
                 }
-                edges[id_u][id_v] = w;
-                //edges[id_v][id_u] = w;
+                edges[id_u][id_v] = edges[id_v][id_u] = w;
                 if (max_edge < w) {
                     max_edge = w;
+                }
+            }
+        }
+
+        void complete() {
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    int city1_id = sol[i]->get_id();
+                    int city2_id = sol[j]->get_id();
+                    double w = edges[city1_id][city2_id];
+                    if(w == -1){
+                        w = Cost::delta(sol[i]->get_lat(), sol[i]->get_lon(),
+                                        sol[j]->get_lat(), sol[j]->get_lon());
+                        edges[city1_id][city2_id] =
+                        edges[city2_id][city1_id] = w * max_edge;
+                    }
                 }
             }
         }
@@ -50,22 +65,6 @@ class Instance {
             }
         }
 
-        void complete() {
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    int city1_id = sol[i]->get_id();
-                    int city2_id = sol[j]->get_id();
-                    double w = edges[city1_id][city2_id];
-                    if(w == -1){
-                        w = Cost::delta(sol[i]->get_lat(), sol[i]->get_lon(),
-                                        sol[j]->get_lat(), sol[j]->get_lon());
-                        edges[city1_id][city2_id] = w * max_edge;
-                        //edges[city2_id][city1_id] = w * max_edge;
-                    }
-                }
-            }
-        }
-
     public:
         Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size, unsigned int seed) :
             bdd(_bdd), size(_size),  rng(seed), distribution(0, size){
@@ -74,17 +73,17 @@ class Instance {
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
             }
-            edges = new double*[1093];
+
+            //edges = new double[1093][1093];
             for (int i = 0; i < 1093; i++) {
-                edges[i] = new double[1093];
                 for (int j = 0; j < 1093; j++) {
-                    edges[i][j] = 0.0;
+                    edges[i][j] = 0;
                 }
             }
 
             normalizer = 0;
             for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
+                for (int j = i+1; j < size; j++) {
                     manage_w(i, j);
                 }
             }
@@ -102,17 +101,18 @@ class Instance {
             return size;
         }
 
-        void permute() {
+        std::shared_ptr<City> * permute(std::shared_ptr<City>* s) {
             int i = distribution(rng);
             int j = distribution(rng);
-            swap(i, j);
+            return swap(i, j, s);
         }
 
-        void swap(int i, int j){
-            std::shared_ptr<City> u = sol[i];
-            std::shared_ptr<City> v = sol[j];
-            sol[i] = v;
-            sol[j] = u;
+        std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){
+            std::shared_ptr<City> u = s[i];
+            std::shared_ptr<City> v = s[j];
+            s[i] = v;
+            s[j] = u;
+            return s;
         }
 
         double get_max_edge() {
@@ -123,24 +123,28 @@ class Instance {
             return normalizer;
         }
 
-
-        double cost(){
+        double cost(std::shared_ptr<City>* s){
             double sum = 0;
             for(int i = 1; i < size; i++){
-                int u = sol[i-1] -> get_id();
-                int v = sol[i] -> get_id();
-                sum += edges[u][v];
+                int u = s[i-1] -> get_id();
+                int v = s[i] -> get_id();
+                sum += edges[v][u];
             }
             return sum/normalizer;
+        }
+
+        std::shared_ptr<City> * get_s(){
+            return sol;
         }
 
 
         ~Instance() {
             delete[] sol;
-
+            /*
             for (int i = 0; i < size; i++) {
                 delete[] edges[i];
             }
             delete[] edges;
+            */
         }
 };

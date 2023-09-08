@@ -1,5 +1,5 @@
 #include "Io.h"
-#include "Instance.h"
+#include "Heuristic.h"
 #include <memory>
 #include <random>
 #include <sqlite3.h>
@@ -24,5 +24,7 @@ int main(int argc, char *argv[]) {
     std::cout <<  "Maximum: " << max << std::endl;
     std::cout <<  "Normalizer: " << norm << std::endl;
     std::cout <<  "Eval: " << cost << std::endl;
+
+
     return 0;
 }
