@@ -67,7 +67,7 @@ class Instance {
 
     public:
         Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size, unsigned int seed) :
-            bdd(_bdd), size(_size),  rng(seed), distribution(0, size){
+            bdd(_bdd), size(_size),  rng(seed), distribution(0, size-1){
             sol = new std::shared_ptr<City>[size];
 
             for (int i = 0; i < size; i++) {
@@ -101,10 +101,13 @@ class Instance {
             return size;
         }
 
-        std::shared_ptr<City> * permute(std::shared_ptr<City>* s) {
+        std::shared_ptr<City>* permute(const std::shared_ptr<City>* s) {
             int i = distribution(rng);
             int j = distribution(rng);
-            return swap(i, j, s);
+            std::shared_ptr<City>* newS = new std::shared_ptr<City>[size];
+            std::copy(s, s + size, newS);
+            swap(i, j, newS);
+            return newS;
         }
 
         std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){

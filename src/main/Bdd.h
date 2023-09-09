@@ -21,7 +21,6 @@ class Bdd {
         }
 
         ~Bdd() {
-            std::cout << "Destructor called" << std::endl;
             sqlite3_close(db);
         }
 
