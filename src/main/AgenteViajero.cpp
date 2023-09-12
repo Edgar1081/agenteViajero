@@ -20,22 +20,31 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<City> * first = instance->get_s();
     double cost = instance->cost(first);
+
     std::cout << std::setprecision(15);
+    /*
     std::cout <<  "Maximum: " << max << std::endl;
     std::cout <<  "Normalizer: " << norm << std::endl;
     std::cout <<  "Eval: " << cost << std::endl;
-
+    */
     std::shared_ptr<Heuristic> h =
-        std::make_shared<Heuristic>(instance, 40, 8, 0.001, 0.01, 0.8);
+        std::make_shared<Heuristic>(instance, 60, 400, 0.001, 0.01, 0.95, size);
 
-    std::shared_ptr<City> * iter = h->apu(8, first, 40);
+    std::shared_ptr<City> * iter = h->apu(800000, first, 40);
     //double cost3 = instance->cost(iter);
     //std::cout <<  "Eval 3: " << cost3 << std::endl;
 
-
-    //for(int i = 0; i<40; i++){
-    //    std::cout << iter[i]-> get_id() << " ";
-    //}
-
+/*
+  for(int i = 0; i<40; i++){
+  std::cout << iter[i]-> get_id() << " ";
+  }
+*/
     return 0;
+
+    /*
+    std::shared_ptr<Heuristic> h =
+        std::make_shared<Heuristic>(instance, 60, 400, 0.001, 0.01, 0.95);
+
+    std::shared_ptr<City> * iter = h->apu(800000, first, 40);
+    */
 }

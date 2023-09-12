@@ -10,6 +10,7 @@ class Heuristic {
         double epsilon;
         double epsilonP;
         double phi;
+        int size;
 
         double temp_init(std::shared_ptr<City> * s, double T, double P){
             double p = percent_accepted(s, T);
@@ -67,9 +68,9 @@ class Heuristic {
     public:
 
         Heuristic(std::shared_ptr<Instance> _ins, int _L,
-                  double _temp, double _epsilon, double _epsilonP, double _phi):
+                  double _temp, double _epsilon, double _epsilonP, double _phi, int _size):
             ins(_ins), L(_L), init_temp(_temp),
-            epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi){
+            epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi), size(_size){
 
         }
 
@@ -86,12 +87,12 @@ class Heuristic {
                     s = sP;
                     c++;
                     r += fsP;
-                    std::cout << " " << std::endl;
-                    std::cout <<  "fsc"  << " "<< fs << std::endl;
-                    std::cout <<  "perm " << fsP << std::endl;
-                    std::cout << "goal " << (fs + T) << std::endl;
-                    std::cout << "smin "<<fsmin << std::endl;
-                    std::cout << " " << std::endl;
+                    //std::cout << " " << std::endl;
+                    std::cout << fsP << std::endl;
+                    //std::cout <<  "perm " << fsP << std::endl;
+                    //std::cout << "goal " << (fs + T) << std::endl;
+                    //std::cout << "smin "<<fsmin << std::endl;
+                    //std::cout << " " << std::endl;
                 }
                 if (fsP < fsmin) {
                     smin = sP;
@@ -102,8 +103,8 @@ class Heuristic {
 
         std::shared_ptr<City> * apu(double T, std::shared_ptr<City> * s, int max){
 
-            std::shared_ptr<City>* smin = new std::shared_ptr<City>[40];
-            std::copy(s, s + 40, smin);
+            std::shared_ptr<City>* smin = new std::shared_ptr<City>[size];
+            std::copy(s, s + size, smin);
             int c = 0;
             double p = 0;
             while(T > epsilon){
@@ -118,6 +119,7 @@ class Heuristic {
                 }
                 T = phi*T;
             }
+            /*
             for (int i = 0; i < 40; i++) {
                 std::cout << s[i]->get_id() << ", ";
             }
@@ -126,6 +128,7 @@ class Heuristic {
             for (int i = 0; i < 40; i++) {
                 std::cout << smin[i]->get_id() << ", ";
             }
+            */
             return smin;
         }
 };
