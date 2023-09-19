@@ -116,18 +116,17 @@ class Instance {
         std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
-            while(j == i){
-                j = distribution(rng);
-            }
 
             std::copy(sol, sol + size, sol_ant);
             sol = swap(i,j, sol);
             last_cost = actual_cost;
-            //actual_cost = first_cost();
+            /*
             double temp = actual_cost*normalizer;
             temp -= cost(i,j);
             temp += cost_recal(i,j);
-            actual_cost = temp/normalizer;
+            */
+            //actual_cost = temp/normalizer;
+            actual_cost = first_cost();
             return std::make_tuple(sol,i,j);
         }
         std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){
@@ -220,6 +219,7 @@ class Instance {
             }
             if(i == j-1){
                 recal += edges[sol[i]->get_id()][sol[i-1]->get_id()];
+                recal += edges[sol[i]->get_id()][sol[j]->get_id()];
                 recal += edges[sol[i]->get_id()][sol[j+1]->get_id()];
                 return recal;
             }
@@ -259,6 +259,7 @@ class Instance {
             }
             if(i == j-1){
                 rest += edges[sol_ant[i]->get_id()][sol_ant[i-1]->get_id()];
+                rest += edges[sol_ant[i]->get_id()][sol_ant[j]->get_id()];
                 rest += edges[sol_ant[i]->get_id()][sol_ant[j+1]->get_id()];
                 return rest;
             }

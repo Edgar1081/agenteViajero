@@ -90,13 +90,8 @@ class Heuristic {
                 std::shared_ptr<City>* sP = ins->get_s();
                 double fsP = ins->get_cost();
                 if (fsP < (fs + init_temp)) {
-                    /*
-                    if(c == 46 || c == 47){
-                        std::cout << "C: " << c << " " << i << "," << j << std::endl;
-                        std::cout << std::endl;
-                        print_sol(solP);
-                    }
-                    */
+                    //std::cout << "C: " << c << " " << i << "," << j << std::endl;
+                    //std::cout << std::endl;
                     s = sP;
                     c++;
                     r += fsP;
