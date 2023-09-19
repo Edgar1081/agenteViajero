@@ -84,31 +84,17 @@ class Heuristic {
             std::shared_ptr<City>* smin = s;
             double min_cost = ins->get_cost();
             while (c < L) {
-                auto [i, j, res] = ins->permute();
+                double fs = ins->get_cost();
+                ins->permute();
                 std::shared_ptr<City>* sP = ins->get_s();
                 double fsP = ins->get_cost();
-                double fs = ins->get_last_cost();
                 if (fsP < (fs + init_temp)) {
                     s = sP;
                     c++;
                     r += fsP;
-                    std::cout << "I: " << i << std::endl;
-                    std::cout << "J: " << j << std::endl;
                     std::cout << fsP << std::endl;
-                    if(c == 13 || c == 14)
-                        print_sol(sP);
-                    if(i == 4 && j == 2)
-                        print_sol(sP);
-                    if(i == 11 && j == 36)
-                        print_sol(sP);
-                    if(i == 17 && j == 18)
-                        print_sol(sP);
-                    if(fsP < 0){
-                    std::cout << "C: " << c << ": " << fsP << std::endl;
-                    std::cout << i << std::endl;
-                    std::cout << j << std::endl;
-                    print_sol(sP);
-                    }
+                }else{
+                    ins->restore();
                 }
                 if (fsP < min_cost) {
                     smin = sP;

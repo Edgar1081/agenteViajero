@@ -19,12 +19,6 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<Heuristic> h =
         std::make_shared<Heuristic>(instance, 40, 800000, 0.0001, 0.01, 0.95, size);
     std::shared_ptr<City> * first = h->apu();
-    int valuesant[] ={792,981,978,489,491,75,982,3,979,817,164,333,492,327,496,
-    490,656,331,4,6,1,657,980,652,820,329,165,654,816,332,815,493,7,5,168,653,2,163,172,984};
-    std::cout << "EVALS" << std::endl;
-
-    std::cout << instance->cost_eval(first) << std::endl;
-
     for(int i = 0; i<40; i++){
         std::cout << first[i]-> get_id() << " ";
     }

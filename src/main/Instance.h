@@ -71,7 +71,8 @@ class Instance {
         Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size, unsigned int seed) :
             bdd(_bdd), size(_size),  rng(seed), distribution(0, size-1){
 
-            sol = new std::shared_ptr<City>[150];
+            sol = new std::shared_ptr<City>[size];
+            sol_ant = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
             }
@@ -91,11 +92,13 @@ class Instance {
             calc_norm();
             complete();
             actual_cost = first_cost();
+            std::copy(sol, sol + size, sol_ant);
         }
 
         double get_edge(int vertex1, int vertex2) {
             return edges[vertex1][vertex2];
         }
+
 
         int get_size() {
             return size;
@@ -105,50 +108,41 @@ class Instance {
         }
 
         void restore(){
-
+            std::copy(sol_ant, sol + size, sol);
+            actual_cost = last_cost;
         }
-        std::tuple<int, int, double> permute() {
+        void permute() {
             int i = distribution(rng);
             int j = distribution(rng);
-            while(j == i)
+            while(j == i){
                 j = distribution(rng);
-
-            if(i == 11 && j == 36){
-                std::cout << sol[i]->get_id() << " "<< sol[j]->get_id() << std::endl;
-                std::cout << sol[3]->get_id() << " "<< std::endl;
-            }
-            if(i == 17 && j == 18){
-                std::cout << sol[i]->get_id() << " "<< sol[j]->get_id() << std::endl;
-                std::cout << sol[3]->get_id() << " "<< std::endl;
             }
 
-            // Allocate memory for newS
-            std::shared_ptr<City>* newS = new std::shared_ptr<City>[size];
-
-            // Copy sol to newS
-            std::copy(sol, sol + size, newS);
-
-            // Perform the swap and update newS
-            swap(i, j, newS);
-
-            // Copy newS back to sol
-            std::copy(newS, newS + size, sol);
-
-            // Deallocate memory for newS
-            delete[] newS;
-
+            std::copy(sol, sol + size, sol_ant);
+            sol = swap(i,j, sol);
             last_cost = actual_cost;
             actual_cost = first_cost();
-            return std::make_tuple(i,j, 0);
+            //sol_ant = sol;
+            //sol = swap(i,j,sol);
+            /*
+            std::shared_ptr<City>* newS = new std::shared_ptr<City>[size];
+            std::copy(sol, sol + size, newS);
+            std::copy(sol, sol + size, sol_ant);
+            swap(i,j,newS);
+            std::copy(newS, newS + size, sol);
+            // Deallocate memory for newS
+            delete[] newS;
+            */
+            double temp = actual_cost*normalizer;
+            temp -= cost(i,j);
+            temp += cost_recal(i,j);
+            //actual_cost = temp/normalizer;
         }
         std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){
             std::shared_ptr<City> u = s[i];
             std::shared_ptr<City> v = s[j];
             s[i] = v;
             s[j] = u;
-            if(i == 11 && j == 36){
-                std::cout << s[i]->get_id() << " xd "<< s[j]->get_id() << std::endl;
-            }
             return s;
         }
 
@@ -249,7 +243,7 @@ class Instance {
         }
 
         double cases(int i, int j){
-            double rest = 0;
+            double  rest = 0;
             if (i == 0){
                 rest += edges[sol_ant[i]->get_id()][sol_ant[i+1]->get_id()];
             }
