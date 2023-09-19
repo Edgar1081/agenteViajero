@@ -107,11 +107,13 @@ class Instance {
             return sol_ant;
         }
 
-        void restore(){
+        void restore(int i ,int j){
+            swap(i,j, sol);
             std::copy(sol_ant, sol + size, sol);
+
             actual_cost = last_cost;
         }
-        void permute() {
+        std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
             while(j == i){
@@ -121,22 +123,12 @@ class Instance {
             std::copy(sol, sol + size, sol_ant);
             sol = swap(i,j, sol);
             last_cost = actual_cost;
-            actual_cost = first_cost();
-            //sol_ant = sol;
-            //sol = swap(i,j,sol);
-            /*
-            std::shared_ptr<City>* newS = new std::shared_ptr<City>[size];
-            std::copy(sol, sol + size, newS);
-            std::copy(sol, sol + size, sol_ant);
-            swap(i,j,newS);
-            std::copy(newS, newS + size, sol);
-            // Deallocate memory for newS
-            delete[] newS;
-            */
+            //actual_cost = first_cost();
             double temp = actual_cost*normalizer;
             temp -= cost(i,j);
             temp += cost_recal(i,j);
-            //actual_cost = temp/normalizer;
+            actual_cost = temp/normalizer;
+            return std::make_tuple(sol,i,j);
         }
         std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){
             std::shared_ptr<City> u = s[i];

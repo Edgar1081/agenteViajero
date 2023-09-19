@@ -84,17 +84,25 @@ class Heuristic {
             std::shared_ptr<City>* smin = s;
             double min_cost = ins->get_cost();
             while (c < L) {
+
                 double fs = ins->get_cost();
-                ins->permute();
+                auto [solP, i, j] = ins->permute();
                 std::shared_ptr<City>* sP = ins->get_s();
                 double fsP = ins->get_cost();
                 if (fsP < (fs + init_temp)) {
+                    /*
+                    if(c == 46 || c == 47){
+                        std::cout << "C: " << c << " " << i << "," << j << std::endl;
+                        std::cout << std::endl;
+                        print_sol(solP);
+                    }
+                    */
                     s = sP;
                     c++;
                     r += fsP;
                     std::cout << fsP << std::endl;
                 }else{
-                    ins->restore();
+                    ins->restore(i , j);
                 }
                 if (fsP < min_cost) {
                     smin = sP;
@@ -102,13 +110,6 @@ class Heuristic {
                 }
             }
             return std::make_tuple(r / L, s, smin);
-        }
-
-        void print_sol(std::shared_ptr<City>* sP){
-            for(int i = 0; i<size; i++){
-                std::cout << sP[i]-> get_id() << "  ";
-            }
-            std::cout << std::endl;
         }
 
         std::shared_ptr<City> * apu(){
@@ -131,4 +132,11 @@ class Heuristic {
             }
             return s;
         }
+        void print_sol(std::shared_ptr<City>* sP){
+            for(int i = 0; i<size; i++){
+                std::cout << sP[i]-> get_id() << "  ";
+            }
+            std::cout << std::endl;
+        }
+
 };
