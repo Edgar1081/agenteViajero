@@ -104,6 +104,8 @@ class Instance {
         std::shared_ptr<City>* permute(const std::shared_ptr<City>* s) {
             int i = distribution(rng);
             int j = distribution(rng);
+            while(j ==i)
+                j = distribution(rng);
             std::shared_ptr<City>* newS = new std::shared_ptr<City>[size];
             std::copy(s, s + size, newS);
             swap(i, j, newS);
