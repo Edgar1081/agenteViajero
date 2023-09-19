@@ -12,6 +12,7 @@ class Heuristic {
         double phi;
         int size;
 
+        /*
         double temp_init(std::shared_ptr<City> * s, double T, double P){
             double p = percent_accepted(s, T);
             double T1;
@@ -64,6 +65,7 @@ class Heuristic {
                 return binary_search(s, Tm, T2, P);
             }
         }
+        */
 
     public:
 
@@ -75,60 +77,72 @@ class Heuristic {
         }
 
         std::tuple<double, std::shared_ptr<City>*, std::shared_ptr<City>*>
-        calcLote(double T, std::shared_ptr<City>* s, std::shared_ptr<City>* smin) {
+        calcLote() {
             int c = 0;
             double r = 0;
+            std::shared_ptr<City>* s = ins->get_s();
+            std::shared_ptr<City>* smin = s;
+            double min_cost = ins->get_cost();
             while (c < L) {
-                std::shared_ptr<City>* sP = ins->permute(s);
-                double fs = ins->cost(s);
-                double fsP = ins->cost(sP);
-                double fsmin = ins->cost(smin);
-                if (fsP < (fs + T)) {
+                auto [i, j, res] = ins->permute();
+                std::shared_ptr<City>* sP = ins->get_s();
+                double fsP = ins->get_cost();
+                double fs = ins->get_last_cost();
+                if (fsP < (fs + init_temp)) {
                     s = sP;
                     c++;
                     r += fsP;
-                    //std::cout << " " << std::endl;
+                    std::cout << "I: " << i << std::endl;
+                    std::cout << "J: " << j << std::endl;
                     std::cout << fsP << std::endl;
-                    //std::cout <<  "perm " << fsP << std::endl;
-                    //std::cout << "goal " << (fs + T) << std::endl;
-                    //std::cout << "smin "<<fsmin << std::endl;
-                    //std::cout << " " << std::endl;
+                    if(c == 13 || c == 14)
+                        print_sol(sP);
+                    if(i == 4 && j == 2)
+                        print_sol(sP);
+                    if(i == 11 && j == 36)
+                        print_sol(sP);
+                    if(i == 17 && j == 18)
+                        print_sol(sP);
+                    if(fsP < 0){
+                    std::cout << "C: " << c << ": " << fsP << std::endl;
+                    std::cout << i << std::endl;
+                    std::cout << j << std::endl;
+                    print_sol(sP);
+                    }
                 }
-                if (fsP < fsmin) {
+                if (fsP < min_cost) {
                     smin = sP;
+                    min_cost = fsP;
                 }
             }
             return std::make_tuple(r / L, s, smin);
         }
 
-        std::shared_ptr<City> * apu(double T, std::shared_ptr<City> * s, int max){
+        void print_sol(std::shared_ptr<City>* sP){
+            for(int i = 0; i<size; i++){
+                std::cout << sP[i]-> get_id() << "  ";
+            }
+            std::cout << std::endl;
+        }
 
+        std::shared_ptr<City> * apu(){
             std::shared_ptr<City>* smin = new std::shared_ptr<City>[size];
+            std::shared_ptr<City>* s = ins->get_s();
             std::copy(s, s + size, smin);
             int c = 0;
             double p = 0;
-            while(T > epsilon){
+            while(init_temp > epsilon){
                 double q = std::numeric_limits<double>::max();
                 while (p <= q /*&& c < max*/){
                     q = p;
-                    auto [r, sn, sminN] = calcLote(T, s, smin);
+                    auto [r, sn, sminN] = calcLote();
                     p = r;
                     s = sn;
                     smin = sminN;
                     c++;
                 }
-                T = phi*T;
+                init_temp = phi*init_temp;
             }
-            /*
-            for (int i = 0; i < 40; i++) {
-                std::cout << s[i]->get_id() << ", ";
-            }
-            std::cout << std::endl;
-            std::cout << std::endl;
-            for (int i = 0; i < 40; i++) {
-                std::cout << smin[i]->get_id() << ", ";
-            }
-            */
-            return smin;
+            return s;
         }
 };
