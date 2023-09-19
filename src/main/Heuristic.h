@@ -87,12 +87,7 @@ class Heuristic {
                     s = sP;
                     c++;
                     r += fsP;
-                    //std::cout << " " << std::endl;
                     std::cout << fsP << std::endl;
-                    //std::cout <<  "perm " << fsP << std::endl;
-                    //std::cout << "goal " << (fs + T) << std::endl;
-                    //std::cout << "smin "<<fsmin << std::endl;
-                    //std::cout << " " << std::endl;
                 }
                 if (fsP < fsmin) {
                     smin = sP;
