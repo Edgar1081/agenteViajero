@@ -75,6 +75,12 @@ class Heuristic {
             epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi), size(_size){
 
         }
+        Heuristic(std::shared_ptr<Instance> _ins, int _L,
+                  double _temp, double _epsilon, double _phi, int _size):
+            ins(_ins), L(_L), init_temp(_temp),
+            epsilon(_epsilon), phi(_phi), size(_size){
+
+        }
 
         std::tuple<double, std::shared_ptr<City>*, std::shared_ptr<City>*>
         calcLote() {
@@ -113,7 +119,7 @@ class Heuristic {
             double p = 0;
             while(init_temp > epsilon){
                 double q = std::numeric_limits<double>::max();
-                while (p <= q /*&& c < max*/){
+                while (p <= q){
                     q = p;
                     auto [r, sn, sminN] = calcLote();
                     p = r;
@@ -124,12 +130,6 @@ class Heuristic {
                 init_temp = phi*init_temp;
             }
             return smin;
-        }
-        void print_sol(std::shared_ptr<City>* sP){
-            for(int i = 0; i<size; i++){
-                std::cout << sP[i]-> get_id() << "  ";
-            }
-            std::cout << std::endl;
         }
 
 };
