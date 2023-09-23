@@ -45,7 +45,7 @@ class Bdd {
             const char *query = "SELECT latitude FROM cities;";
             sqlite3_stmt *stmt;
 
-            rc = sqlite3_prepare_v2(db, query, -1, &stmt, 0);  // Initialize stmt, not res
+            rc = sqlite3_prepare_v2(db, query, -1, &stmt, 0);
         
             while(sqlite3_step(stmt) == SQLITE_ROW){
                 std::cout << sqlite3_column_double(stmt, 0) << std::endl;
@@ -96,17 +96,15 @@ class Bdd {
 
             double lat = 0;
             double lon = 0;
-            int pop = -1;
             int idbdd = -1;
 
             while (sqlite3_step(stmt) == SQLITE_ROW) {
                 idbdd = sqlite3_column_int(stmt, 0);
-                pop = sqlite3_column_int(stmt, 3);
                 lat = sqlite3_column_double(stmt, 4);
                 lon = sqlite3_column_double(stmt, 5);
             }
 
-            std::shared_ptr<City> city = std::make_shared<City>(idbdd, "", "", pop, lat, lon);
+            std::shared_ptr<City> city = std::make_shared<City>(idbdd,lat, lon);
             sqlite3_finalize(stmt);
             return city;
         }

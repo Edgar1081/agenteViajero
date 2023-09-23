@@ -18,7 +18,9 @@ class Instance {
         double edges[1093][1093];
         std::mt19937 rng;
         std::uniform_int_distribution<int> distribution;
+        double actual_sum;
         double actual_cost;
+        double last_sum;
         double last_cost;
 
         void manage_w(int i, int j) {
@@ -91,14 +93,10 @@ class Instance {
             L.reverse();
             calc_norm();
             complete();
-            actual_cost = first_cost();
+            first_cost();
+            last_sum = actual_sum;
             std::copy(sol, sol + size, sol_ant);
         }
-
-        double get_edge(int vertex1, int vertex2) {
-            return edges[vertex1][vertex2];
-        }
-
 
         int get_size() {
             return size;
@@ -109,26 +107,23 @@ class Instance {
 
         void restore(int i ,int j){
             swap(i,j, sol);
-            std::copy(sol_ant, sol + size, sol);
-
+            actual_sum = last_sum;
             actual_cost = last_cost;
         }
         std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
 
+            while( i == j )
+                j = distribution(rng);
+
             std::copy(sol, sol + size, sol_ant);
-            sol = swap(i,j, sol);
-            last_cost = actual_cost;
-            /*
-            double temp = actual_cost*normalizer;
-            temp -= cost(i,j);
-            temp += cost_recal(i,j);
-            */
-            //actual_cost = temp/normalizer;
-            actual_cost = first_cost();
+            swap(i,j, sol);
+            last_sum = actual_sum;
+            modify_cost(i ,j);
             return std::make_tuple(sol,i,j);
         }
+
         std::shared_ptr<City>* swap(int i, int j, std::shared_ptr<City>* s){
             std::shared_ptr<City> u = s[i];
             std::shared_ptr<City> v = s[j];
@@ -137,11 +132,11 @@ class Instance {
             return s;
         }
 
-        double eval(int s []){
+        double eval(std::shared_ptr<City>* s){
             double sum = 0;
             for(int i = 1; i < size; i++){
-                int u = s[i-1];
-                int v = s[i];
+                int u = s[i-1]->get_id();
+                int v = s[i]->get_id();
                 sum += edges[v][u];
             }
             return sum/normalizer;
@@ -157,21 +152,21 @@ class Instance {
         }
 
         double get_last_cost(){
-            return last_cost;
+            return last_sum/normalizer;
         }
 
         double get_cost(){
-            return actual_cost;
+            return actual_sum/normalizer;
         }
 
-        double first_cost(){
+        void first_cost(){
             double sum = 0;
             for(int i = 1; i < size; i++){
                 int u = sol[i-1] -> get_id();
                 int v = sol[i] -> get_id();
                 sum += edges[v][u];
             }
-            return sum/normalizer;
+            actual_sum = sum;
         }
 
         double cost_eval(std::shared_ptr<City>* array){
@@ -184,102 +179,55 @@ class Instance {
             return sum/normalizer;
         }
 
-        double cost(int i, int j){
-            if(i < j)
-                return cases(i,j);
-            return cases(j, i);
-        }
+        void modify_cost(int i, int j) {
+            double sum = 0;
+            double res = 0;
 
-        double cost_recal(int i, int j){
-            if(i < j)
-                return cases_recal(i,j);
-            return cases_recal(j,i);
-        }
+            int ii = std::min(i,j);
+            int jj = std::max(i,j);
 
-        double cases_recal(int i, int j){
-            double recal = 0;
-            if (i == 0)
-                recal += edges[sol[i]->get_id()][sol[i+1]->get_id()];
-            if (j == size-1)
-                recal += edges[sol[j]->get_id()][sol[j-1]->get_id()];
-            if(i == j-1 && i > 0 && j < size-1){
-                recal += edges[sol[i]->get_id()][sol[i-1]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[j+1]->get_id()];
-                return recal;
-            }
-            if(i == j-1 && i == 0){
-                recal += edges[sol[i]->get_id()][sol[j]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[j+1]->get_id()];
-                return recal;
-            }
-            if(i == j-1 && j == size-1){
-                recal += edges[sol[i]->get_id()][sol[i-1]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[j]->get_id()];
-                return recal;
-            }
-            if(i == j-1){
-                recal += edges[sol[i]->get_id()][sol[i-1]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[j]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[j+1]->get_id()];
-                return recal;
-            }
-            if(i > 0){
-                recal += edges[sol[i]->get_id()][sol[i-1]->get_id()];
-                recal += edges[sol[i]->get_id()][sol[i+1]->get_id()];
-            }
-            if(j < size-1){
-                recal += edges[sol[j]->get_id()][sol[j-1]->get_id()];
-                recal += edges[sol[j]->get_id()][sol[j+1]->get_id()];
-            }
-            return recal;
-        }
+            int city_i = sol_ant[ii]->get_id();
+            int city_j = sol_ant[jj]->get_id();
 
-        double cases(int i, int j){
-            double  rest = 0;
-            if (i == 0){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i+1]->get_id()];
-            }
-            if (j == size-1)
-                rest += edges[sol_ant[j]->get_id()][sol_ant[j-1]->get_id()];
+            int li = -1;
+            int di = sol_ant[ii+1]->get_id();
 
-            if(i == j-1 && i > 0 && j < size-1){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i-1]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j+1]->get_id()];
-                return rest;
+            int lj = sol_ant[jj-1]->get_id();
+            int dj = -1;
+
+            if (ii != 0)
+                li = sol_ant[ii-1]->get_id();
+            if (jj != size-1)
+                dj = sol_ant[jj+1]->get_id();
+
+            if(li != -1){
+                res += edges[li][city_i];
+                sum += edges[li][city_j];
             }
-            if(i == j-1 && i == 0){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j+1]->get_id()];
-                return rest;
+
+            if(dj != -1){
+                res += edges[city_j][dj];
+                sum += edges[city_i][dj];
             }
-            if(i == j-1 && j == size-1){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i-1]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j]->get_id()];
-                return rest;
+
+
+            if( std::abs(ii-jj) != 1){
+                sum += edges[city_j][di];
+                sum += edges[city_i][lj];
+                res += edges[city_i][di];
+                res += edges[city_j][lj];
             }
-            if(i == j-1){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i-1]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[j+1]->get_id()];
-                return rest;
-            }
-            if(i > 0){
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i-1]->get_id()];
-                rest += edges[sol_ant[i]->get_id()][sol_ant[i+1]->get_id()];
-            }
-            if(j < size-1){
-                rest += edges[sol_ant[j]->get_id()][sol_ant[j-1]->get_id()];
-                rest += edges[sol_ant[j]->get_id()][sol_ant[j+1]->get_id()];
-            }
-            return rest;
+
+            actual_sum -= res;
+            actual_sum += sum;
         }
 
         std::shared_ptr<City> * get_s(){
             return sol;
         }
 
-
         ~Instance() {
-            //delete[] sol;
+            delete[] sol;
+            delete[] sol_ant;
         }
 };

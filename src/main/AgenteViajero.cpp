@@ -19,9 +19,11 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<Heuristic> h =
         std::make_shared<Heuristic>(instance, 1000, 800000, 0.0001, 0.01, 0.98, size);
     std::shared_ptr<City> * first = h->apu();
-    /*
     for(int i = 0; i<40; i++){
         std::cout << first[i]-> get_id() << " ";
     }
-    */
+
+    std::cout << std::endl;
+    std::cout << instance->eval(first);
+
 }
