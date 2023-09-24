@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     std::cout << std::setprecision(16);
-    const std::string databasePath = "./src/data/tsp.db";
+    const std::string databasePath = "./data/tsp.db";
     std::shared_ptr<Bdd> bdd = std::make_shared<Bdd>(databasePath);
     std::unique_ptr<Io> input = std::make_unique<Io>(argv[1]);
     int size = input->get_size();
