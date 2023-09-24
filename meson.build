@@ -1,5 +1,5 @@
 project('Agente Viajero', 'cpp',
-  version : '0.1')
+  version : '0.9')
 
 sqlite_dep = dependency('sqlite3')
 
@@ -10,6 +10,10 @@ executable('reproduce', reproducefile, dependencies : [sqlite_dep], c_args : ['-
 #Eval an array
 evalfile = ['src/main/execs/Eval.cpp']
 executable('eval', evalfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#Prints full eval
+evaltotalfile = ['src/main/execs/Evalstotal.cpp']
+executable('fullevals', evaltotalfile, dependencies : [sqlite_dep], c_args : ['-g'])
 
 #Sweep
 #sweepfile = ['src/main/eval.cpp']
