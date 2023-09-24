@@ -38,9 +38,9 @@ class Heuristic {
                 T2 = 2*T;
             }
             double temp = binary_search(T1, T2, P);
-            std::cout << "CALC_TEMP: " << temp << std::endl;
             init_temp = temp;
             temp_calc = temp;
+            ins->reset_rng();
         }
 
         double percent_accepted(double T){
@@ -75,12 +75,20 @@ class Heuristic {
                   double _temp, double _epsilon, double _epsilonP, double _phi, int _size):
             ins(_ins), L(_L), epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi), size(_size){
             temp_init(_temp, 0.9);
+            for(int i = 0; i < size; i++)
+                std::cout << ins->get_s()[i]->get_id() << ", ";
+            std::cout << "CALC_TEMP: " << init_temp << " SEED: "
+                      << ins->get_seed() <<std::endl;
         }
 
         Heuristic(std::shared_ptr<Instance> _ins, int _L,
                   double _temp, double _epsilon, double _phi, int _size):
             ins(_ins), L(_L), init_temp(_temp),
             epsilon(_epsilon), phi(_phi), size(_size){
+            for(int i = 0; i < size; i++)
+                std::cout << ins->get_s()[i]->get_id() << ", ";
+            std::cout << "INIT_TEMP: " << init_temp << " SEED: "
+                      << ins->get_seed()  <<std::endl;
         }
 
         std::tuple<double, std::shared_ptr<City>*, std::shared_ptr<City>*>
@@ -109,13 +117,13 @@ class Heuristic {
         }
 
         std::tuple<std::shared_ptr<City> *, std::shared_ptr<City> *> apu(){
-            int max = (size)*(size-1)/2;
+            int max = (size)*(size-1);
             std::shared_ptr<City>* s = ins->get_s();
             std::shared_ptr<City>* solmin = s;
             double min_cost = ins->get_cost();
             double p = 0;
+            int c = 0;
             while(init_temp > epsilon){
-                int c = 0;
                 double q = std::numeric_limits<double>::max();
                 while (p <= q && (c < max)){
                     q = p;

@@ -15,13 +15,14 @@ class Instance {
         double max_edge = 0;
         std::shared_ptr<Bdd> bdd;
         int size;
+        int seed;
         double edges[1093][1093];
         std::mt19937 rng;
         std::uniform_int_distribution<int> distribution;
         double actual_sum;
-        double actual_cost;
         double last_sum;
-        double last_cost;
+        std::shared_ptr<City>* init_sol;
+
 
         void manage_w(int i, int j) {
             int id_u = sol[i]->get_id();
@@ -70,14 +71,18 @@ class Instance {
         }
 
     public:
-        Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size, unsigned int seed) :
-            bdd(_bdd), size(_size),  rng(seed), distribution(0, size-1){
-
+        Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size,
+                 unsigned int _seed) :
+            bdd(_bdd), size(_size),distribution(0, size-1){
+            rng.seed(_seed);
+            seed = _seed;
             sol = new std::shared_ptr<City>[size];
             sol_ant = new std::shared_ptr<City>[size];
+            init_sol = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
                 sol_ant[i] = sol[i];
+                init_sol[i] = sol[i];
             }
 
             for (int i = 0; i < 1093; i++) {
@@ -101,6 +106,21 @@ class Instance {
             std::copy(sol, sol + size, sol_ant);
         }
 
+        int get_seed(){
+            return seed;
+        }
+
+        int first_ran(){
+            return distribution(rng);
+        }
+
+        void reset_rng(){
+            rng.seed(seed);
+            std::copy(init_sol, init_sol+size, sol);
+            std::copy(init_sol, init_sol+size, sol_ant);
+            first_cost();
+        }
+
         int get_size() {
             return size;
         }
@@ -111,8 +131,8 @@ class Instance {
         void restore(int i ,int j){
             swap(i,j, sol);
             actual_sum = last_sum;
-            actual_cost = last_cost;
         }
+
         std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
@@ -125,7 +145,6 @@ class Instance {
 
             last_sum = actual_sum;
             modify_cost(i ,j);
-            //first_cost();
             return std::make_tuple(sol,i,j);
         }
 
@@ -172,6 +191,7 @@ class Instance {
                 sum += edges[v][u];
             }
             actual_sum = sum;
+            last_sum = sum;
         }
 
         double cost_eval(std::shared_ptr<City>* array){
@@ -234,5 +254,6 @@ class Instance {
         ~Instance() {
             delete[] sol;
             delete[] sol_ant;
+            delete[] init_sol;
         }
 };

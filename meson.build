@@ -4,5 +4,13 @@ project('Agente Viajero', 'cpp',
 sqlite_dep = dependency('sqlite3')
 
 # Main executable
-agente_sources = ['src/main/AgenteViajero.cpp']
-executable('solve', agente_sources, dependencies : [sqlite_dep], c_args : ['-g'] )
+reproducefile = ['src/main/AgenteViajero.cpp']
+executable('reproduce', reproducefile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#Eval an array
+#evalfile = ['src/main/eval.cpp']
+#executable('eval', evalfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#Sweep
+#sweepfile = ['src/main/eval.cpp']
+#executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])

@@ -12,18 +12,14 @@ int main(int argc, char *argv[]) {
     int size = input->get_size();
     int * ins = input->get_array();
     int seed = std::stoi(argv[2]);
-    std::mt19937 gen(seed);
-    std::uniform_int_distribution<int> distribution(0, size);
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, seed);
 
     std::shared_ptr<Heuristic> h =
-        std::make_shared<Heuristic>(instance, 1000, 8, 0.0001, 0.01,0.95, size);
+        std::make_shared<Heuristic>(instance, 1000, 8, 0.0001,0.01,0.95, size);
     auto [first, min] = h->apu();
     for(int i = 0; i<40; i++){
         std::cout << first[i]-> get_id() << " ";
     }
-
     std::cout << std::endl;
-    std::cout << instance->eval(first) << std::endl;
     std::cout << instance->eval(min);
 }
