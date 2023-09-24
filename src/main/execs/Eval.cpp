@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<City>* min = instance->get_s();
     std::list<double> L = instance->get_L();
 
-
     std::cout << "Eval : "  << instance->eval(min) << std::endl;
     std::cout << "Max  : "  << instance->get_max_edge() << std::endl;
     std::cout << "Norm  : "  << instance->get_normalizer() << std::endl;
