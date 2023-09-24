@@ -14,15 +14,30 @@ int main(int argc, char *argv[]) {
     int * ins = input->get_array();
 
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, 0);
+    std::shared_ptr<City>* preSweep = instance->get_s();
+    std::cout << "Pre sweep eval : "  << instance->eval(preSweep) << std::endl;
+
+    for(int i = 0; i<size; i++){
+        std::cout << preSweep[i]-> get_id();
+        if(i != 39)
+            std::cout << ",";
+    }
+
     instance->set_min(instance->get_s());
-    instance->sweep();
+    std::cout << std::endl;
+    int improvement = instance->sweep();
 
     std::shared_ptr<City>* min = instance->get_min();
 
-    for(int i = 0; i<40; i++){
-        std::cout << min[i]-> get_id();
-        if(i != 39)
-            std::cout << ",";
+    if (improvement != 0){
+        std::cout << "Pos sweep eval : "  << instance->eval(min) << std::endl;
+        for(int i = 0; i<40; i++){
+            std::cout << min[i]-> get_id();
+            if(i != 39)
+                std::cout << ",";
+        }
+    }else{
+        std::cout << "NO SWEEP IMPROVEMENT" << std::endl;
     }
 
     return 0;

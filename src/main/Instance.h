@@ -22,8 +22,6 @@ class Instance {
         double actual_sum;
         double last_sum;
         std::shared_ptr<City>* init_sol;
-        double min_sum;
-        double real_min_sum;
         std::shared_ptr<City>* min_sol;
         std::shared_ptr<City>* real_min_sol;
 
@@ -86,6 +84,8 @@ class Instance {
             sol = new std::shared_ptr<City>[size];
             sol_ant = new std::shared_ptr<City>[size];
             init_sol = new std::shared_ptr<City>[size];
+            min_sol = new std::shared_ptr<City>[size];
+            real_min_sol = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
                 sol_ant[i] = sol[i];
@@ -175,26 +175,28 @@ class Instance {
             return real_min_sol;
         }
 
-        void sweep(){
-            while(sweep_once()){}
+        int sweep(){
+            int c = 0;
+            while(sweep_once2()){c++;}
+            return c;
         }
 
-        bool sweep_once(){
+        bool sweep_once2(){
             for(int i = 0; i < size; i++){
-                for(int j = 0; j < size; j++){
+                for(int j = i+1; j < size; j++){
                     if(i == j)
                         continue;
                     std::shared_ptr<City> * min_sol_ant = new std::shared_ptr<City>[size];
                     std::copy(min_sol, min_sol+size, min_sol_ant);
                     swap(i,j,min_sol);
-                    double min_sum_ant = min_sum;
-                    if(divide_cost(min_sum += modify_cost(i,j, min_sol_ant)) < divide_cost(real_min_sum)){
+                    double actual_eval = eval(min_sol);
+                    if(actual_eval < eval(real_min_sol)){
+                        std::cout << "Sweep improvement : "  << actual_eval << std::endl;
                         std::copy(min_sol, min_sol+size, real_min_sol);
-                        real_min_sum = min_sum;
+                        std::copy(real_min_sol, real_min_sol+size, min_sol);
                         return true;
                     }else{
-                        std::copy(min_sol_ant, min_sol_ant+size, min_sol);
-                        min_sum = min_sum_ant;
+                        swap(i,j,min_sol);
                     }
                 }
             }
@@ -202,12 +204,9 @@ class Instance {
         }
 
         void set_min(std::shared_ptr<City> * min){
-            this->min_sol = min;
-            real_min_sol = new std::shared_ptr<City>[size];
-            std::copy(min_sol, min_sol+size, real_min_sol);
-            min_sum = real_min_sum = eval(min_sol);
+            std::copy(min, min+size, min_sol);
+            std::copy(min, min+size, real_min_sol);
         }
-
 
         double divide_cost(double sum){
             return sum/normalizer;
