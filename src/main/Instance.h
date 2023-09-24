@@ -77,12 +77,15 @@ class Instance {
             sol_ant = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
                 sol[i] = bdd->get_city(_sol[i]);
+                sol_ant[i] = sol[i];
             }
+
             for (int i = 0; i < 1093; i++) {
                 for (int j = 0; j < 1093; j++) {
                     edges[i][j] = 0;
                 }
             }
+
             normalizer = 0;
             for (int i = 0; i < size; i++) {
                 for (int j = i+1; j < size; j++) {
@@ -117,10 +120,12 @@ class Instance {
             while( i == j )
                 j = distribution(rng);
 
-            std::copy(sol, sol + size, sol_ant);
+            std::copy(sol, sol+size, sol_ant);
             swap(i,j, sol);
+
             last_sum = actual_sum;
             modify_cost(i ,j);
+            //first_cost();
             return std::make_tuple(sol,i,j);
         }
 
