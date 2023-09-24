@@ -75,6 +75,7 @@ class Heuristic {
                   double _temp, double _epsilon, double _epsilonP, double _phi, int _size):
             ins(_ins), L(_L), epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi), size(_size){
             temp_init(_temp, 0.9);
+            ins->reset_rng();
             for(int i = 0; i < size; i++)
                 std::cout << ins->get_s()[i]->get_id() << ", ";
             std::cout << "CALC_TEMP: " << init_temp << " SEED: "
@@ -85,6 +86,7 @@ class Heuristic {
                   double _temp, double _epsilon, double _phi, int _size):
             ins(_ins), L(_L), init_temp(_temp),
             epsilon(_epsilon), phi(_phi), size(_size){
+            ins->reset_rng();
             for(int i = 0; i < size; i++)
                 std::cout << ins->get_s()[i]->get_id() << ", ";
             std::cout << "INIT_TEMP: " << init_temp << " SEED: "
