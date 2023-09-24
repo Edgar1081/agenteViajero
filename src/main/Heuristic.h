@@ -6,12 +6,13 @@ class Heuristic {
     private:
         std::shared_ptr<Instance> ins;
         int L;
-        double temp_calc = 0;
         double init_temp;
+        double first_temp;
         double epsilon;
-        double epsilonP;
+        double epsilonP = -1;
         double phi;
         int size;
+        bool print;
 
         void temp_init(double T, double P){
             double p = percent_accepted(T);
@@ -19,7 +20,7 @@ class Heuristic {
             double T2;
             if(std::abs( P - p)  <= epsilonP ){
                 init_temp = T;
-                temp_calc = T;
+                first_temp = T;
                 return;
             }
             if (p < P) {
@@ -39,7 +40,7 @@ class Heuristic {
             }
             double temp = binary_search(T1, T2, P);
             init_temp = temp;
-            temp_calc = temp;
+            first_temp = T;
             ins->reset_rng();
         }
 
@@ -72,25 +73,20 @@ class Heuristic {
 
     public:
         Heuristic(std::shared_ptr<Instance> _ins, int _L,
-                  double _temp, double _epsilon, double _epsilonP, double _phi, int _size):
-            ins(_ins), L(_L), epsilon(_epsilon), epsilonP(_epsilonP), phi(_phi), size(_size){
+                  double _temp, double _epsilon, double _epsilonP,
+                  double _phi, int _size, bool _print):
+            ins(_ins), L(_L), epsilon(_epsilon), epsilonP(_epsilonP),
+            phi(_phi), size(_size), print(_print){
             temp_init(_temp, 0.9);
             ins->reset_rng();
-            for(int i = 0; i < size; i++)
-                std::cout << ins->get_s()[i]->get_id() << ", ";
-            std::cout << "CALC_TEMP: " << init_temp << " SEED: "
-                      << ins->get_seed() <<std::endl;
         }
 
         Heuristic(std::shared_ptr<Instance> _ins, int _L,
-                  double _temp, double _epsilon, double _phi, int _size):
-            ins(_ins), L(_L), init_temp(_temp),
-            epsilon(_epsilon), phi(_phi), size(_size){
+                  double _temp, double _epsilon
+                  , double _phi, int _size, bool _print):
+            ins(_ins), L(_L), init_temp(_temp), first_temp(_temp),
+            epsilon(_epsilon), phi(_phi), size(_size), print(_print){
             ins->reset_rng();
-            for(int i = 0; i < size; i++)
-                std::cout << ins->get_s()[i]->get_id() << ", ";
-            std::cout << "INIT_TEMP: " << init_temp << " SEED: "
-                      << ins->get_seed()  <<std::endl;
         }
 
         std::tuple<double, std::shared_ptr<City>*, std::shared_ptr<City>*>
@@ -106,7 +102,8 @@ class Heuristic {
                     s = sP;
                     c++;
                     r += fsP;
-                    std::cout << fsP << std::endl;
+                    if(print)
+                        std::cout << fsP << std::endl;
                 }else{
                     ins->restore(i , j);
                 }
@@ -138,5 +135,22 @@ class Heuristic {
                 init_temp = phi*init_temp;
             }
             return std::make_tuple(s, solmin);
+        }
+
+        int get_lotes(){
+            return L;
+        }
+
+        double get_temp(){
+            return first_temp;
+        }
+        double get_eps(){
+            return epsilon;
+        }
+        double get_eps_temp(){
+            return epsilonP;
+        }
+        double get_phi(){
+            return phi;
         }
 };

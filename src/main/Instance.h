@@ -110,6 +110,7 @@ class Instance {
             return seed;
         }
 
+
         int first_ran(){
             return distribution(rng);
         }

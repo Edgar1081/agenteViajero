@@ -1,10 +1,13 @@
-#include "Io.h"
-#include "Heuristic.h"
+#include "../Io.h"
+#include "../Heuristic.h"
 #include <memory>
 #include <random>
 #include <sqlite3.h>
 
 int main(int argc, char *argv[]) {
+
+    bool print_all = false;
+
     double lotes = 0.0;
     double temp = 0.0;
     double eps = 0.0;
@@ -51,21 +54,28 @@ int main(int argc, char *argv[]) {
     std::unique_ptr<Io> input = std::make_unique<Io>(argv[1]);
     int size = input->get_size();
     int * ins = input->get_array();
-    std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, seed);
 
+    std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, seed);
     std::shared_ptr<Heuristic> h;
 
-
     if(useFlagT){
-        h = std::make_shared<Heuristic>(instance, lotes, temp, eps, epstemp, phi, size);
+        h = std::make_shared<Heuristic>(instance, lotes, temp, eps, epstemp, phi, size, print_all);
     }else {
-        h = std::make_shared<Heuristic>(instance, lotes, temp, eps, phi, size);
+        h = std::make_shared<Heuristic>(instance, lotes, temp, eps, phi, size, print_all);
     }
 
     auto [first, min] = h->apu();
     for(int i = 0; i<40; i++){
-        std::cout << first[i]-> get_id() << " ";
+        std::cout << first[i]-> get_id();
+        if(i != 39)
+            std::cout << ", ";
     }
     std::cout << std::endl;
-    std::cout << instance->eval(min);
+    std::cout << "E   : "  << instance->eval(min) << std::endl;
+    std::cout << "L   : "  << h->get_lotes() << std::endl;
+    std::cout << "T   : "  << h->get_temp() << std::endl;
+    std::cout << "SEED: "  << instance->get_seed() << std::endl;
+    std::cout << "Eps : "  << h->get_eps() << std::endl;
+    std::cout << "Phi : "  << h->get_phi() << std::endl;
+    std::cout << "EpsT: "  << h->get_eps_temp() << std::endl;
 }
