@@ -145,7 +145,7 @@ class Instance {
             swap(i,j, sol);
 
             last_sum = actual_sum;
-            modify_cost(i ,j);
+            actual_sum += modify_cost(i ,j, sol_ant);
             return std::make_tuple(sol,i,j);
         }
 
@@ -205,26 +205,26 @@ class Instance {
             return sum/normalizer;
         }
 
-        void modify_cost(int i, int j) {
+        double modify_cost(int i, int j, std::shared_ptr<City>* array) {
             double sum = 0;
             double res = 0;
 
             int ii = std::min(i,j);
             int jj = std::max(i,j);
 
-            int city_i = sol_ant[ii]->get_id();
-            int city_j = sol_ant[jj]->get_id();
+            int city_i = array[ii]->get_id();
+            int city_j = array[jj]->get_id();
 
             int li = -1;
-            int di = sol_ant[ii+1]->get_id();
+            int di = array[ii+1]->get_id();
 
-            int lj = sol_ant[jj-1]->get_id();
+            int lj = array[jj-1]->get_id();
             int dj = -1;
 
             if (ii != 0)
-                li = sol_ant[ii-1]->get_id();
+                li = array[ii-1]->get_id();
             if (jj != size-1)
-                dj = sol_ant[jj+1]->get_id();
+                dj = array[jj+1]->get_id();
 
             if(li != -1){
                 res += edges[li][city_i];
@@ -244,8 +244,7 @@ class Instance {
                 res += edges[city_j][lj];
             }
 
-            actual_sum -= res;
-            actual_sum += sum;
+            return sum - res;
         }
 
         std::shared_ptr<City> * get_s(){
