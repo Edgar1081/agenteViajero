@@ -16,5 +16,5 @@ evaltotalfile = ['src/main/execs/Evalstotal.cpp']
 executable('fullevals', evaltotalfile, dependencies : [sqlite_dep], c_args : ['-g'])
 
 #Sweep
-#sweepfile = ['src/main/eval.cpp']
-#executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])
+sweepfile = ['src/main//execs/Sweep.cpp']
+executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])

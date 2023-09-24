@@ -124,7 +124,7 @@ class Heuristic {
             int c = 0;
             while(init_temp > epsilon){
                 double q = std::numeric_limits<double>::max();
-                while (p <= q && (c < max)){
+                while (p <= q /*&& (c < max)*/){
                     q = p;
                     auto [r, sn, sminN] = calcLote(min_cost, solmin);
                     p = r;

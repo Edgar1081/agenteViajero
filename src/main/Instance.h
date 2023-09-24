@@ -22,7 +22,10 @@ class Instance {
         double actual_sum;
         double last_sum;
         std::shared_ptr<City>* init_sol;
-
+        double min_sum;
+        double real_min_sum;
+        std::shared_ptr<City>* min_sol;
+        std::shared_ptr<City>* real_min_sol;
 
         void manage_w(int i, int j) {
             int id_u = sol[i]->get_id();
@@ -30,7 +33,9 @@ class Instance {
             if (id_u == id_v) {
                 edges[id_u][id_v] = 0;
             } else {
-                double w = bdd->edges(id_u, id_v);
+                int ii = std::min(id_u, id_v);
+                int jj = std::max(id_u, id_v);
+                double w = bdd->edges(ii, jj);
                 if (w != -1) {
                     L.push_back(w);
                 }
@@ -40,6 +45,8 @@ class Instance {
                 }
             }
         }
+
+
 
         void complete() {
             for (int i = 0; i < size; i++) {
@@ -52,8 +59,8 @@ class Instance {
                                         sol[j]->get_lat(), sol[j]->get_lon());
                         edges[city1_id][city2_id] =
                         edges[city2_id][city1_id] = w * max_edge;
-                    }
                 }
+                    }
             }
         }
 
@@ -103,7 +110,6 @@ class Instance {
             complete();
             first_cost();
             last_sum = actual_sum;
-            std::copy(sol, sol + size, sol_ant);
         }
 
         int get_seed(){
@@ -125,6 +131,7 @@ class Instance {
         int get_size() {
             return size;
         }
+
         std::shared_ptr<City>* get_ant(){
             return sol_ant;
         }
@@ -137,9 +144,6 @@ class Instance {
         std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
-
-            while( i == j )
-                j = distribution(rng);
 
             std::copy(sol, sol+size, sol_ant);
             swap(i,j, sol);
@@ -167,6 +171,47 @@ class Instance {
             return sum/normalizer;
         }
 
+        std::shared_ptr<City> * get_min(){
+            return real_min_sol;
+        }
+
+        void sweep(){
+            while(sweep_once()){}
+        }
+
+        bool sweep_once(){
+            for(int i = 0; i < size; i++){
+                for(int j = 0; j < size; j++){
+                    if(i == j)
+                        continue;
+                    std::shared_ptr<City> * min_sol_ant = new std::shared_ptr<City>[size];
+                    std::copy(min_sol, min_sol+size, min_sol_ant);
+                    swap(i,j,min_sol);
+                    double min_sum_ant = min_sum;
+                    if(divide_cost(min_sum += modify_cost(i,j, min_sol_ant)) < divide_cost(real_min_sum)){
+                        std::copy(min_sol, min_sol+size, real_min_sol);
+                        real_min_sum = min_sum;
+                        return true;
+                    }else{
+                        std::copy(min_sol_ant, min_sol_ant+size, min_sol);
+                        min_sum = min_sum_ant;
+                    }
+                }
+            }
+            return false;
+        }
+
+        void set_min(std::shared_ptr<City> * min){
+            this->min_sol = min;
+            real_min_sol = new std::shared_ptr<City>[size];
+            std::copy(min_sol, min_sol+size, real_min_sol);
+            min_sum = real_min_sum = eval(min_sol);
+        }
+
+
+        double divide_cost(double sum){
+            return sum/normalizer;
+        }
 
         double get_max_edge() {
             return max_edge;
@@ -195,17 +240,10 @@ class Instance {
             last_sum = sum;
         }
 
-        double cost_eval(std::shared_ptr<City>* array){
-            double sum = 0;
-            for(int i = 1; i < size; i++){
-                int u = array[i-1] -> get_id();
-                int v = array[i] -> get_id();
-                sum += edges[v][u];
-            }
-            return sum/normalizer;
-        }
-
         double modify_cost(int i, int j, std::shared_ptr<City>* array) {
+
+            if(i == j)
+                return 0;
             double sum = 0;
             double res = 0;
 
@@ -251,9 +289,16 @@ class Instance {
             return sol;
         }
 
+
+        std::list<double> get_L(){
+            return L;
+        }
+
         ~Instance() {
             delete[] sol;
             delete[] sol_ant;
             delete[] init_sol;
+            delete[] min_sol;
+            delete[] real_min_sol;
         }
 };

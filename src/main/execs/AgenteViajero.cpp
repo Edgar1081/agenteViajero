@@ -65,17 +65,18 @@ int main(int argc, char *argv[]) {
     }
 
     auto [first, min] = h->apu();
-    for(int i = 0; i<40; i++){
-        std::cout << first[i]-> get_id();
-        if(i != 39)
-            std::cout << ", ";
-    }
+
     std::cout << std::endl;
-    std::cout << "E   : "  << instance->eval(min) << std::endl;
-    std::cout << "L   : "  << h->get_lotes() << std::endl;
-    std::cout << "T   : "  << h->get_temp() << std::endl;
-    std::cout << "SEED: "  << instance->get_seed() << std::endl;
-    std::cout << "Eps : "  << h->get_eps() << std::endl;
-    std::cout << "Phi : "  << h->get_phi() << std::endl;
-    std::cout << "EpsT: "  << h->get_eps_temp() << std::endl;
+    std::cout << "Eval : "  << instance->eval(min) << std::endl;
+    std::cout << "Lot  : "  << h->get_lotes() << std::endl;
+    std::cout << "Temp : "  << h->get_temp() << std::endl;
+    std::cout << "SEED : "  << instance->get_seed() << std::endl;
+    std::cout << "Eps  : "  << h->get_eps() << std::endl;
+    std::cout << "Phi  : "  << h->get_phi() << std::endl;
+    std::cout << "EpsT : "  << h->get_eps_temp() << std::endl;
+    for(int i = 0; i<40; i++){
+        std::cout << min[i]-> get_id();
+        if(i != 39)
+            std::cout << ",";
+    }
 }

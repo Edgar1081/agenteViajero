@@ -64,5 +64,5 @@ int main(int argc, char *argv[]) {
         h = std::make_shared<Heuristic>(instance, lotes, temp, eps, phi, size, print_all);
     }
 
-    auto [first, min] = h->apu();
+    h->apu();
 }

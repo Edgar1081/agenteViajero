@@ -14,7 +14,16 @@ int main(int argc, char *argv[]) {
     int * ins = input->get_array();
 
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, 0);
+    instance->set_min(instance->get_s());
+    instance->sweep();
 
+    std::shared_ptr<City>* min = instance->get_min();
+
+    for(int i = 0; i<40; i++){
+        std::cout << min[i]-> get_id();
+        if(i != 39)
+            std::cout << ",";
+    }
 
     return 0;
 }
