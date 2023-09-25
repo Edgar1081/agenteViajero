@@ -37,3 +37,6 @@ release
 build
 *.txt
 *.tsp
+
+!150.tsp
+!40.tsp
