@@ -116,7 +116,7 @@ class Heuristic {
         }
 
         std::tuple<std::shared_ptr<City> *, std::shared_ptr<City> *> apu(){
-            int max = (size)*(size-1);
+            int max = (size)*(size);
             std::shared_ptr<City>* s = ins->get_s();
             std::shared_ptr<City>* solmin = s;
             double min_cost = ins->get_cost();
@@ -124,7 +124,7 @@ class Heuristic {
             int c = 0;
             while(init_temp > epsilon){
                 double q = std::numeric_limits<double>::max();
-                while (p <= q /*&& (c < max)*/){
+                while (p <= q && (c < max)){
                     q = p;
                     auto [r, sn, sminN] = calcLote(min_cost, solmin);
                     p = r;

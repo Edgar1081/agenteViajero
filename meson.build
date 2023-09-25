@@ -23,3 +23,7 @@ executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])
 #Draw
 drawfile = ['src/main//execs/Draw.cpp']
 executable('draw', drawfile, dependencies : [sqlite_dep, draw_dep], c_args : ['-g'])
+
+#Run
+runfile = ['src/main//execs/Run.cpp']
+executable('run', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
