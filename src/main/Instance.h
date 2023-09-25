@@ -298,7 +298,7 @@ class Instance {
             for(int i = 0; i < size; i++){
                 std::shared_ptr<City> c = min[i];
                 double lat = c->get_lat();
-                double lon = c->get_lat();
+                double lon = c->get_lon();
                 points.push_back(std::make_tuple(lat,lon));
             }
             return points;

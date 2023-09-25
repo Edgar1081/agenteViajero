@@ -15,10 +15,7 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, 0);
     std::shared_ptr<City>* min = instance->get_s();
     std::list<std::tuple<double,double>> L = instance->get_path(instance, size);
-    for(std::tuple<double,double> point : L){
-        double lat = std::get<0>(point);
-        double lon = std::get<1>(point);
-        std::cout << lat << ", " << lon << std::endl;
-    }
+    Modify_svg::draw_map(L);
+
     return 0;
 }
