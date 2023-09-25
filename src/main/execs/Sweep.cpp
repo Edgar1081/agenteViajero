@@ -19,18 +19,14 @@ int main(int argc, char *argv[]) {
 
     for(int i = 0; i<size; i++){
         std::cout << preSweep[i]-> get_id();
-        if(i != 39)
+        if(i != size-1)
             std::cout << ",";
     }
-
-    instance->set_min(instance->get_s());
     std::cout << std::endl;
     int improvement = instance->sweep();
-
-    std::shared_ptr<City>* min = instance->get_min();
-
+    std::shared_ptr<City>* min = instance->get_s();
     if (improvement != 0){
-        std::cout << "Pos sweep eval : "  << instance->eval(min) << std::endl;
+        std::cout << "Pos sweep eval : "  << instance->get_cost() << std::endl;
         for(int i = 0; i<size; i++){
             std::cout << min[i]-> get_id();
             if(i != size-1)
