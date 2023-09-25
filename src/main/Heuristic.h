@@ -40,8 +40,7 @@ class Heuristic {
             }
             double temp = binary_search(T1, T2, P);
             init_temp = temp;
-            first_temp = T;
-            ins->reset_rng();
+            first_temp = temp;
         }
 
         double percent_accepted(double T){
