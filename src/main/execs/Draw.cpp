@@ -1,4 +1,5 @@
 #include "../Io.h"
+#include "../Modify_svg.h"
 #include "../Heuristic.h"
 #include <memory>
 #include <random>

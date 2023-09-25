@@ -2,6 +2,7 @@ project('Agente Viajero', 'cpp',
   version : '0.9')
 
 sqlite_dep = dependency('sqlite3')
+draw_dep = dependency('libxml-2.0', required: true)
 
 # Main executable
 reproducefile = ['src/main/execs/AgenteViajero.cpp']
@@ -18,3 +19,7 @@ executable('fullevals', evaltotalfile, dependencies : [sqlite_dep], c_args : ['-
 #Sweep
 sweepfile = ['src/main//execs/Sweep.cpp']
 executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#Draw
+drawfile = ['src/main//execs/Draw.cpp']
+executable('draw', drawfile, dependencies : [sqlite_dep, draw_dep], c_args : ['-g'])
