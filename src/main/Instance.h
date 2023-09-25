@@ -290,6 +290,7 @@ class Instance {
         std::list<double> get_L(){
             return L;
         }
+
         std::list<std::tuple<double, double>>
         get_path(std::shared_ptr<Instance> ins, int size){
             std::shared_ptr<City>* min = ins->get_s();
@@ -300,7 +301,8 @@ class Instance {
                 double lon = c->get_lat();
                 points.push_back(std::make_tuple(lat,lon));
             }
-
+            return points;
+        }
         ~Instance() {
             delete[] sol;
             delete[] sol_ant;

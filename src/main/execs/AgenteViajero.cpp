@@ -79,4 +79,5 @@ int main(int argc, char *argv[]) {
         if(i != 39)
             std::cout << ",";
     }
+    return 0;
 }

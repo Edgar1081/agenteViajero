@@ -19,4 +19,5 @@ int main(int argc, char *argv[]) {
         double lon = std::get<1>(point);
         std::cout << lat << ", " << lon << std::endl;
     }
+    return 0;
 }
