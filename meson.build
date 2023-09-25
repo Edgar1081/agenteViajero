@@ -24,6 +24,10 @@ executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])
 drawfile = ['src/main//execs/Draw.cpp']
 executable('draw', drawfile, dependencies : [sqlite_dep, draw_dep], c_args : ['-g'])
 
+#Script
+runfile = ['src/main/execs/Run.cpp']
+executable('script', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
 #Run
-runfile = ['src/main//execs/Run.cpp']
+runfile = ['src/main//execs/Create_sols.cpp']
 executable('run', runfile, dependencies : [sqlite_dep], c_args : ['-g'])

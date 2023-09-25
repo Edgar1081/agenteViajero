@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <memory>
 #include <random>
+#include <algorithm>
 #include "Bdd.h"
 #include "Cost.h"
 
@@ -98,6 +99,13 @@ class Instance {
                     manage_w(i, j);
                 }
             }
+
+            if(seed != 0){
+                std::shuffle(sol, sol + size, rng);
+                std::copy(sol, sol + size, sol_ant);
+                reset_rng();
+            }
+
             L.sort();
             L.reverse();
             calc_norm();
@@ -272,6 +280,9 @@ class Instance {
             return sol;
         }
 
+        std::shared_ptr<City> * get_init_s(){
+            return init_sol;
+        }
 
         std::list<double> get_L(){
             return L;
