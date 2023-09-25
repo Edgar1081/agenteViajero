@@ -31,9 +31,9 @@ int main(int argc, char *argv[]) {
 
     if (improvement != 0){
         std::cout << "Pos sweep eval : "  << instance->eval(min) << std::endl;
-        for(int i = 0; i<40; i++){
+        for(int i = 0; i<size; i++){
             std::cout << min[i]-> get_id();
-            if(i != 39)
+            if(i != size-1)
                 std::cout << ",";
         }
     }else{

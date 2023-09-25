@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
     std::cout << "Max  : "  << instance->get_max_edge() << std::endl;
     std::cout << "Norm  : "  << instance->get_normalizer() << std::endl;
 
-    for(int i = 0; i<40; i++){
+    for(int i = 0; i<size; i++){
         std::cout << min[i]-> get_id();
-        if(i != 39)
+        if(i != size-1)
             std::cout << ",";
     }
     return 0;

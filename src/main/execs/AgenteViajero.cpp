@@ -73,9 +73,9 @@ int main(int argc, char *argv[]) {
     std::cout << "Eps  : "  << h->get_eps() << std::endl;
     std::cout << "EpsT : "  << h->get_eps_temp() << std::endl;
     std::cout << "Phi  : "  << h->get_phi() << std::endl;
-    for(int i = 0; i<40; i++){
+    for(int i = 0; i<size; i++){
         std::cout << min[i]-> get_id();
-        if(i != 39)
+        if(i != size-1)
             std::cout << ",";
     }
     return 0;
