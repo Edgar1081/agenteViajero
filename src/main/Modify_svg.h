@@ -32,7 +32,7 @@ class Modify_svg {
 
         static void plot_path(std::list<std::tuple<double,double>> points_list,
             double w, double h, xmlNodePtr root){
-            size_t size = points_list.size();
+            int size = points_list.size();
             std::tuple<double,double> points[size];
             size_t index = 0;
             for (std::tuple<double, double> value : points_list) {
@@ -81,7 +81,7 @@ class Modify_svg {
 
 
     public:
-        static void draw_map(std::list<std::tuple<double, double>> points) {
+        static void draw_map(std::list<std::tuple<double, double>> points, const char* route) {
             const char* input_svg_file = "./data/plot/world5.svg";
             xmlDocPtr doc = xmlReadFile(input_svg_file, NULL, 0);
             if (doc == NULL) {
@@ -97,7 +97,7 @@ class Modify_svg {
             plot_path(points, w,h,root);
             plot_points(points, w,h,root);
 
-            const char* output_svg_file = "output_map.svg";
+            const char* output_svg_file = route;
             xmlSaveFormatFile(output_svg_file, doc, 1);
 
             xmlFreeDoc(doc);
