@@ -40,6 +40,6 @@ build
 *.svg
 
 
-!world.svg
+!world5.svg
 !150.tsp
 !40.tsp
