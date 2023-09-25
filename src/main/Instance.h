@@ -100,10 +100,11 @@ class Instance {
                 }
             }
 
+
             if(seed != 0){
                 std::shuffle(sol, sol + size, rng);
                 std::copy(sol, sol + size, sol_ant);
-                reset_rng();
+                rng.seed(seed);
             }
 
             L.sort();
