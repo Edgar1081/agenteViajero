@@ -43,6 +43,27 @@ class Io {
             file.close();
         }
 
+        static int * to_array(std::string& input){
+            int length= 0;
+            std::stringstream text;
+            text << input;
+            std::string token;
+            while (getline(text, token, ',')) {
+                length++;
+            }
+            int* sol = new int[length];
+
+            text.clear();
+            text.seekg(0, std::ios::beg);
+
+            int i = 0;
+            while (std::getline(text, token, ',')) {
+                int idVertice = std::stoi(token);
+                sol[i++] = idVertice;
+            }
+            return sol;
+        }
+
         int get_size() {
             return size;
         }
