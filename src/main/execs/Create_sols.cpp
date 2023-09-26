@@ -5,6 +5,34 @@
 #include <sys/stat.h>
 #include <random>
 #include <sqlite3.h>
+#include <unistd.h>
+#include <dirent.h>
+
+bool directoryExists(const std::string& path) {
+    struct stat st;
+    return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+bool removeDirectory(const std::string& path) {
+    DIR* dir = opendir(path.c_str());
+    if (dir) {
+        struct dirent* entry;
+        while ((entry = readdir(dir))) {
+            if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")) {
+                std::string entryPath = path + "/" + entry->d_name;
+                if (entry->d_type == DT_DIR) {
+                    if (!removeDirectory(entryPath))
+                        return false;
+                } else {
+                    if (remove(entryPath.c_str()) != 0)
+                        return false;
+                }
+            }
+        }
+        closedir(dir);
+    }
+    return rmdir(path.c_str()) == 0;
+}
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
@@ -13,7 +41,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout << std::setprecision(16);
 
-    const char* flag = argv[1];
+    std::string flag = argv[1];
     const char* integerStr = argv[2];
     int number = std::atoi(integerStr);
     const char* insS = argv[3];
@@ -46,17 +74,23 @@ int main(int argc, char *argv[]) {
 
     std::string dir = directory + caso;
 
-    struct stat st;
-    if (stat(dir.c_str(), &st) != 0) {
-        int dirResult = mkdir(dir.c_str(), 0777);
-        if (dirResult != 0) {
-            std::cerr << "Failed to create directory." << std::endl;
+    if (directoryExists(dir)) {
+        if (!removeDirectory(dir)) {
+            std::cerr << "Failed to remove directory. " << dir << std::endl;
             return 1;
         }
     }
 
-    for(int i = 1; i < number+1; i++){
-        std::string filename = std::to_string(i);
+    int dirResult = mkdir(dir.c_str(), 0777);
+    if (dirResult != 0) {
+        std::cerr << "Failed to create directory." << std::endl;
+        return 1;
+    }
+
+    int i = 1;
+    int c = 1;
+    while(i < number+1){
+        std::string filename = std::to_string(c);
         std::string filext = filename + ".txt";
         std::string filepath = dir + "/" + filext;
 
@@ -75,22 +109,35 @@ int main(int argc, char *argv[]) {
 
         std::shared_ptr<Heuristic> h
             = std::make_shared<Heuristic>(instance, lotes, temp, eps, epsP, phi, size, false);
+
         auto [first, min] = h->apu();
 
-        outputFile << std::setprecision(16);
-        outputFile << "Eval : "  << instance->eval(min) << std::endl;
-        outputFile << "SEED : "  << instance->get_seed() << std::endl;
-        outputFile << "Lot  : "  << h->get_lotes() << std::endl;
-        outputFile << "Temp : "  << h->get_temp() << std::endl;
-        outputFile << "Eps  : "  << h->get_eps() << std::endl;
-        outputFile << "EpsT : "  << h->get_eps_temp() << std::endl;
-        outputFile << "Phi  : "  << h->get_phi() << std::endl;
-        for(int i = 0; i<size; i++){
-            outputFile << min[i]-> get_id();
-            if(i != size-1)
-                outputFile << ",";
-        }
+        if(flag == "-s")
+            i++;
+
+        c++;
+        if(flag == "-f")
+            if (instance->eval(min) < 1){
+                i++;
+                outputFile << std::setprecision(16);
+                outputFile << "Eval : "  << instance->eval(min) << std::endl;
+                outputFile << "SEED : "  << instance->get_seed() << std::endl;
+                outputFile << "Lot  : "  << h->get_lotes() << std::endl;
+                outputFile << "Temp : "  << h->get_temp() << std::endl;
+                outputFile << "Eps  : "  << h->get_eps() << std::endl;
+                outputFile << "EpsT : "  << h->get_eps_temp() << std::endl;
+                outputFile << "Phi  : "  << h->get_phi() << std::endl;
+                for(int i = 0; i<size; i++){
+                    outputFile << min[i]-> get_id();
+                    if(i != size-1)
+                        outputFile << ",";
+                }
+            }
+
         outputFile.close();
     }
+
+    Analyzer::sort(dir);
+
     return 0;
 }
