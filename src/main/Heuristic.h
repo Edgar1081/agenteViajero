@@ -115,7 +115,7 @@ class Heuristic {
         }
 
         std::tuple<std::shared_ptr<City> *, std::shared_ptr<City> *> apu(){
-            int max = (size)*(size);
+            int max = (size)*(size)*(size);
             std::shared_ptr<City>* s = ins->get_s();
             std::shared_ptr<City>* solmin = s;
             double min_cost = ins->get_cost();

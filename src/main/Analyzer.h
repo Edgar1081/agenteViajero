@@ -72,11 +72,18 @@ private:
 
     static void write_best(std::list<std::tuple<std::string,std::string,std::string>> l,
                            std::string dir, std::shared_ptr<Bdd> bdd, int size){
+
+        if(l.size() < 1)
+            return;
+
         std::string dirSweep = dir+"sweeped";
         int dirResult = mkdir(dirSweep.c_str(), 0777);
         if (dirResult != 0) {
             std::cerr << "Failed to create directory." << std::endl;
         }
+
+        double min = std::numeric_limits<double>::max();
+        std::string mintsp;
 
         for(auto tuple: l){
             int* array = Io::to_array(std::get<1>(tuple));
@@ -84,13 +91,21 @@ private:
             std::string nameS = name;
             std::shared_ptr<Instance> ins = std::make_shared<Instance>(array, bdd, size, 0);
             int imp = ins->sweep1();
-            if(imp > 0)
-                nameS = "sN" + std::to_string(imp) + "_" + name;
+            double cost = ins->get_cost();
+            nameS = "sN" + std::to_string(imp) + "_" + name;
 
-            std::ofstream outputFile(dirSweep+"/"+nameS);
+            std::string filepath = dirSweep+"/"+nameS;
+
+            std::ofstream outputFile(filepath);
             if (!outputFile.is_open()) {
                 std::cerr << "Failed to open file for writing." << std::endl;
             }
+
+            if(cost < min){
+                min = cost;
+                mintsp = nameS;
+            }
+
             outputFile << std::setprecision(16);
             std::shared_ptr<City> * min = ins->get_s();
             for(int i = 0; i<size; i++){
@@ -100,6 +115,15 @@ private:
             }
 
         }
+
+        std::string best = dirSweep+"/best_"+ mintsp;
+        std::string minfile = dirSweep+"/"+ mintsp;
+
+        if (std::rename(minfile.c_str(), best.c_str()) == 0) {
+        } else {
+            std::cerr << "Error renaming the file." << std::endl;
+        }
+
     }
 
     public:
