@@ -206,15 +206,14 @@ class Instance {
         }
 
 
-        std::tuple<int, std::string> sweep1(){
+        int sweep1(){
             int c = 0;
             std::string total;
-            auto[imp, str] = sweep_once1();
-            while(imp){c++;total+=str;}
-            return std::make_tuple(c, total);
+            while(sweep_once1()){c++;}
+            return c;
         }
 
-        std::tuple<bool, std::string> sweep_once1(){
+        bool sweep_once1(){
             std::string imp;
             for(int i = 0; i < size; i++){
                 for(int j = i+1; j < size; j++){
@@ -222,15 +221,13 @@ class Instance {
                         continue;
                     permute(i,j);
                     if(get_cost() < get_last_cost()){
-                        imp += "Sweep improvement : ";
-                        imp += std::to_string(get_cost()) + "\n";
-                        return std::make_tuple(true, imp);
+                        return true;
                     }else{
                         restore(i,j);
                     }
                 }
             }
-            return std::make_tuple(false, "");
+            return false;
         }
 
         double get_max_edge() {

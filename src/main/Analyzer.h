@@ -5,7 +5,7 @@
 #include <tuple>
 #include <dirent.h>
 #include <cmath>
-
+#include <sys/stat.h>
 class Analyzer {
 private:
     static std::list<std::tuple<std::string, std::string, std::string>>
@@ -34,7 +34,9 @@ private:
                     last_line = line;
                 }
                 std::string name = entry->d_name;
-                fileContents.push_back(std::make_tuple(firstLine,last_line,name));
+                size_t dotPos = name.find('.');
+                std::string just_name = name.substr(0, dotPos);
+                fileContents.push_back(std::make_tuple(firstLine,last_line,just_name));
                 file.close();
             } else {
                 std::cerr << "Failed to open file: " << filePath << std::endl;
@@ -70,10 +72,33 @@ private:
 
     static void write_best(std::list<std::tuple<std::string,std::string,std::string>> l,
                            std::string dir, std::shared_ptr<Bdd> bdd, int size){
+        std::string dirSweep = dir+"sweeped";
+        int dirResult = mkdir(dirSweep.c_str(), 0777);
+        if (dirResult != 0) {
+            std::cerr << "Failed to create directory." << std::endl;
+        }
+
         for(auto tuple: l){
             int* array = Io::to_array(std::get<1>(tuple));
+            std::string name = std::get<2>(tuple) + ".tsp";
+            std::string nameS = name;
             std::shared_ptr<Instance> ins = std::make_shared<Instance>(array, bdd, size, 0);
-            //std::cout << std::get<1>(ins->sweep1());
+            int imp = ins->sweep1();
+            if(imp > 0)
+                nameS = "sN" + std::to_string(imp) + "_" + name;
+
+            std::ofstream outputFile(dirSweep+"/"+nameS);
+            if (!outputFile.is_open()) {
+                std::cerr << "Failed to open file for writing." << std::endl;
+            }
+            outputFile << std::setprecision(16);
+            std::shared_ptr<City> * min = ins->get_s();
+            for(int i = 0; i<size; i++){
+                outputFile << min[i] -> get_id();
+                if(i != size-1)
+                    outputFile << ",";
+            }
+
         }
     }
 
