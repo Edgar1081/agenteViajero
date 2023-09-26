@@ -13,6 +13,26 @@ bool directoryExists(const std::string& path) {
     return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
+
+void write(std::shared_ptr<Heuristic> h,
+           std::shared_ptr<Instance> instance,
+           std::ofstream& outputFile, int size, double eval,
+           std::shared_ptr<City>* min){
+    outputFile << "Eval : "  << eval << std::endl;
+    outputFile << "SEED : "  << instance->get_seed() << std::endl;
+    outputFile << "Lot  : "  << h->get_lotes() << std::endl;
+    outputFile << "Temp : "  << h->get_temp() << std::endl;
+    outputFile << "Eps  : "  << h->get_eps() << std::endl;
+    outputFile << "EpsT : "  << h->get_eps_temp() << std::endl;
+    outputFile << "Phi  : "  << h->get_phi() << std::endl;
+    for(int i = 0; i<size; i++){
+        outputFile << min[i]-> get_id();
+        if(i != size-1)
+            outputFile << ",";
+    }
+
+}
+
 bool removeDirectory(const std::string& path) {
     DIR* dir = opendir(path.c_str());
     if (dir) {
@@ -110,28 +130,21 @@ int main(int argc, char *argv[]) {
         std::shared_ptr<Heuristic> h
             = std::make_shared<Heuristic>(instance, lotes, temp, eps, epsP, phi, size, false);
 
-        auto [first, min] = h->apu();
 
-        if(flag == "-s")
+        auto [first, min] = h->apu();
+        double eval = instance->eval(min);
+
+        outputFile << std::setprecision(16);
+        if(flag == "-s"){
             i++;
+            write(h, instance, outputFile, size, eval, min);
+        }
 
         c++;
         if(flag == "-f")
             if (instance->eval(min) < 1){
                 i++;
-                outputFile << std::setprecision(16);
-                outputFile << "Eval : "  << instance->eval(min) << std::endl;
-                outputFile << "SEED : "  << instance->get_seed() << std::endl;
-                outputFile << "Lot  : "  << h->get_lotes() << std::endl;
-                outputFile << "Temp : "  << h->get_temp() << std::endl;
-                outputFile << "Eps  : "  << h->get_eps() << std::endl;
-                outputFile << "EpsT : "  << h->get_eps_temp() << std::endl;
-                outputFile << "Phi  : "  << h->get_phi() << std::endl;
-                for(int i = 0; i<size; i++){
-                    outputFile << min[i]-> get_id();
-                    if(i != size-1)
-                        outputFile << ",";
-                }
+                write(h, instance, outputFile, size, eval, min);
             }
 
         outputFile.close();
