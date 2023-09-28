@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     std::mt19937 rng;
     rng.seed(number);
-    std::uniform_int_distribution<int> distribution(1000, 1500);
+    std::uniform_int_distribution<int> distribution(1000, 2000);
     std::uniform_int_distribution<int> distributiontemp(1000*size, 8000*size);
     std::uniform_int_distribution<int> distPhi(95, 98);
 
