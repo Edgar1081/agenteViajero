@@ -153,7 +153,7 @@ private:
 
         fileContents.sort(comp_tup);
 
-        int firstpercent = std::round(fileContents.size()/10);
+        int firstpercent = std::round(fileContents.size()/2);
         fileContents.resize(firstpercent);
         write_best(fileContents, dir, bdd, size);
     }
