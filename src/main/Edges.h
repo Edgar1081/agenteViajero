@@ -68,10 +68,9 @@ class Edges{
             for (int i = 0; i < size; i++)
                 sol[i] = bdd->get_city(_sol[i]);
 
-
+            std::cout << "XD" << std::endl;
             edges = new double*[1093];
 
-            // Allocate memory for each row (cols) and initialize to 0
             for (int i = 0; i < 1093; i++) {
                 edges[i] = new double[1093]();
             }
@@ -104,6 +103,7 @@ class Edges{
         }
         ~Edges() {
             delete[] sol;
+            delete[] edges;
         }
 
 
