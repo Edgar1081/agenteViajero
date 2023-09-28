@@ -31,3 +31,7 @@ executable('script', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
 #Run
 runfile = ['src/main//execs/Create_sols.cpp']
 executable('run', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#Solve
+solvefile = ['src/main//execs/Solve.cpp']
+executable('solve', solvefile, dependencies : [sqlite_dep], c_args : ['-g'])

@@ -68,6 +68,7 @@ void processThread(int thread_id, int number, std::mt19937 rng,
     while (true) {
         mtx.lock();
         int current_i = current.fetch_add(1, std::memory_order_relaxed);
+        rng.seed(current_i);
         int lotes = distribution(rng);
         int temp = distributiontemp(rng);
         double eps = 0.0001;
