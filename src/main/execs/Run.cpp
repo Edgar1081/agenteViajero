@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
             std::cout << ins << std::endl;
 
             const char* command = ins;
-            int exitCode = system(command);
+            system(command);
         }
 
     } else if (std::strcmp(flag, "-f") == 0) {

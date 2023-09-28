@@ -10,9 +10,27 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-
+#include <atomic>
 
 std::mutex mtx;
+
+std::atomic<int> current(1);
+
+void displayProgressBar(int progress, int total) {
+    const int barWidth = 50;
+    float percentage = static_cast<float>(progress) / total;
+    int progressBarWidth = static_cast<int>(barWidth * percentage);
+
+    std::cout << "[";
+    for (int i = 0; i < progressBarWidth; ++i) {
+        std::cout << "=";
+    }
+    for (int i = progressBarWidth; i < barWidth; ++i) {
+        std::cout << " ";
+    }
+    std::cout << "] " << std::fixed << std::setprecision(2) << (percentage * 100.0) << "%\r";
+    std::cout.flush();
+}
 
 bool directoryExists(const std::string& path) {
     struct stat st;
@@ -41,16 +59,15 @@ bool removeDirectory(const std::string& path) {
 }
 
 
-void processThread(int thread_id, int number, std::mt19937 rng, int i,
+void processThread(int thread_id, int number, std::mt19937 rng,
                    std::uniform_int_distribution<int> distribution,
                    std::uniform_int_distribution<int> distributiontemp,
                    std::uniform_int_distribution<int> distPhi,
-                   std::string dir, int size, std::string flag, int*ins,
-                   std::shared_ptr<Bdd> bdd) {
+                   std::string dir, int size, std::string flag, int* ins,
+                   std::shared_ptr<Bdd> bdd, int& progress, std::mutex& progressMutex) {
     while (true) {
-        int current_i;
         mtx.lock();
-        current_i = i++;
+        int current_i = current.fetch_add(1, std::memory_order_relaxed);
         int lotes = distribution(rng);
         int temp = distributiontemp(rng);
         double eps = 0.0001;
@@ -61,7 +78,7 @@ void processThread(int thread_id, int number, std::mt19937 rng, int i,
         if (current_i > number)
             break;
 
-        std::string filename = std::to_string(current_i);
+        std::string filename = "t_" + std::to_string(thread_id) + "_" + std::to_string(current_i);
         std::string filext = filename + ".txt";
         std::string filepath = dir + "/" + filext;
 
@@ -85,6 +102,11 @@ void processThread(int thread_id, int number, std::mt19937 rng, int i,
         }
 
         outputFile.close();
+
+        progressMutex.lock();
+        progress++;
+        displayProgressBar(progress, number);
+        progressMutex.unlock();
     }
 }
 
@@ -142,16 +164,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::vector<std::thread> threads;
     int num_threads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    int progress = 0;
+    std::mutex progressMutex;
 
-    int i =1;
 
-    for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
-threads.emplace_back(processThread, thread_id, number, std::ref(rng), i, std::ref(distribution),
-                     std::ref(distributiontemp), std::ref(distPhi), dir, size, flag, std::ref(ins), bdd);
+   for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
+        threads.emplace_back(processThread, thread_id, number, std::ref(rng),
+                             std::ref(distribution), std::ref(distributiontemp),
+                             std::ref(distPhi), dir, size, flag, std::ref(ins), bdd,
+                             std::ref(progress), std::ref(progressMutex));
     }
-
     for (auto& thread : threads) {
         thread.join();
     }
