@@ -8,6 +8,8 @@
 #include <random>
 #include <algorithm>
 #include "City.h"
+#include "Bdd.h"
+#include "Cost.h"
 
 class Instance {
     private:
@@ -16,9 +18,10 @@ class Instance {
         std::list<double> L;
         int size;
         int seed;
-        double **edges;
+        double edges[1093][1093];
         double normalizer;
         double max_edge = 0;
+        std::shared_ptr<Bdd> bdd;
         std::mt19937 rng;
         std::uniform_int_distribution<int> distribution;
         double actual_sum;
@@ -26,36 +29,65 @@ class Instance {
         std::shared_ptr<City>* init_sol;
 
 
+        void manage_w(int i, int j) {
+            int id_u = sol[i]->get_id();
+            int id_v = sol[j]->get_id();
+            if (id_u == id_v) {
+                edges[id_u][id_v] = 0;
+            } else {
+                int ii = std::min(id_u, id_v);
+                int jj = std::max(id_u, id_v);
+                double w = bdd->edges(ii, jj);
+                edges[id_u][id_v] = edges[id_v][id_u] = w;
+            }
+        }
+
+        void complete() {
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    int city1_id = sol[i]->get_id();
+                    int city2_id = sol[j]->get_id();
+                    double w = edges[city1_id][city2_id];
+                    if(w == -1){
+                        w = Cost::delta(sol[i]->get_lat(), sol[i]->get_lon(),
+                                        sol[j]->get_lat(), sol[j]->get_lon());
+                        edges[city1_id][city2_id] =
+                            edges[city2_id][city1_id] = w * max_edge;
+                    }
+                }
+            }
+        }
+
     public:
-        Instance(std::shared_ptr<City>* _sol, int _size,
-                 unsigned int _seed,double **_edges,
-                 double _normalizer, double _max_edge) :
+        Instance(int* _sol, int _size,
+                 unsigned int _seed,
+                 double _normalizer, double _max_edge,
+                 std::shared_ptr<Bdd> _bdd) :
             size(_size),normalizer(_normalizer),
-            max_edge(_max_edge),distribution(0, size-1){
+            max_edge(_max_edge), bdd(_bdd),distribution(0, size-1){
             rng.seed(_seed);
             seed = _seed;
             sol = new std::shared_ptr<City>[size];
             sol_ant = new std::shared_ptr<City>[size];
             init_sol = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
-                sol[i] = _sol[i];
+                sol[i] = bdd->get_city(_sol[i]);
                 sol_ant[i] = sol[i];
                 init_sol[i] = sol[i];
             }
 
-            edges = _edges;
 
-            // for (int i = 0; i < 1093; i++) {
-            //     for (int j = 0; j < 1093; j++) {
-            //         edges[i][j] = _edges[i][j];
-            //     }
-            // }
-            // normalizer = 0;
-            // for (int i = 0; i < size; i++) {
-            //     for (int j = i+1; j < size; j++) {
-            //         manage_w(i, j);
-            //     }
-            // }
+            for (int i = 0; i < 1093; i++) {
+                for (int j = 0; j < 1093; j++) {
+                    edges[i][j] = 0;
+                }
+            }
+
+            for (int i = 0; i < size; i++) {
+                for (int j = i+1; j < size; j++) {
+                    manage_w(i, j);
+                }
+            }
 
 
             if(seed != 0){
@@ -64,10 +96,7 @@ class Instance {
                 rng.seed(seed);
             }
 
-            // L.sort();
-            // L.reverse();
-            // calc_norm();
-            // complete();
+            complete();
             first_cost();
             last_sum = actual_sum;
         }

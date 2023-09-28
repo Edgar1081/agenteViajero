@@ -58,13 +58,11 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
 
-    double** matrix = ed->get_edges();
     double norm = ed->get_norm();
     double max = ed->get_max();
-    std::shared_ptr<City>* sol = ed->get_sol();
 
     std::shared_ptr<Instance> instance =
-        std::make_shared<Instance>(sol, size, seed, matrix, norm, max);
+        std::make_shared<Instance>(ins, size, seed, norm, max, bdd);
     std::shared_ptr<Heuristic> h;
 
     if(useFlagT){

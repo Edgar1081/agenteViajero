@@ -91,17 +91,15 @@ private:
 
         std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
 
-        double** matrix = ed->get_edges();
         double norm = ed->get_norm();
         double max = ed->get_max();
 
         for(auto tuple: l){
             std::string name = std::get<2>(tuple) + ".tsp";
             std::string nameS = name;
-            std::shared_ptr<City>* sol = ed->get_sol();
 
             std::shared_ptr<Instance> instance =
-                std::make_shared<Instance>(sol, size, 0, matrix, norm, max);
+                std::make_shared<Instance>(ins, size, 0, norm, max, bdd);
 
             int imp = instance->sweep1();
             double cost = instance->get_cost();

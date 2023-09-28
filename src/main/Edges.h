@@ -78,32 +78,12 @@ class Edges{
             calc_norm();
             complete();
         }
-
-        double** get_edges() {
-            double** cppArray = new double*[1093];
-            for (int i = 0; i < 1093; i++) {
-                cppArray[i] = new double[1093];
-            }
-
-            for (int i = 0; i < 1093; i++) {
-                for (int j = 0; j < 1093; j++) {
-                    cppArray[i][j] = edges[i][j];
-                }
-            }
-            return cppArray;
-        }
         double get_norm(){
             return normalizer;
         }
 
         double get_max(){
             return max_edge;
-        }
-
-        std::shared_ptr<City>* get_sol(){
-            std::shared_ptr<City>* c = new std::shared_ptr<City>[size];
-            std::copy(sol, sol+size, c);
-            return c;
         }
         ~Edges() {
             delete[] sol;

@@ -1,3 +1,7 @@
+#ifndef COST_H
+#define COST_H
+
+
 #include <iostream>
 #include <cmath>
 #include <memory>
@@ -33,3 +37,4 @@ class Cost {
             return radius * c;
         }
 };
+#endif

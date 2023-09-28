@@ -1,3 +1,7 @@
+#ifndef BDD_H
+#define BDD_H
+
+
 #include <memory>
 #include <math.h>
 #include <iostream>
@@ -112,3 +116,5 @@ class Bdd {
             return city;
         }
 };
+
+#endif
