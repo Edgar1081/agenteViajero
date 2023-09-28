@@ -4,7 +4,7 @@
 
 class Edges{
     private:
-        double** edges;
+        double edges[1093][1093];
         std::shared_ptr<City>* sol;
         std::shared_ptr<Bdd> bdd;
         double normalizer;
@@ -68,12 +68,6 @@ class Edges{
             for (int i = 0; i < size; i++)
                 sol[i] = bdd->get_city(_sol[i]);
 
-            std::cout << "XD" << std::endl;
-            edges = new double*[1093];
-
-            for (int i = 0; i < 1093; i++) {
-                edges[i] = new double[1093]();
-            }
             normalizer = 0;
             for (int i = 0; i < size; i++)
                 for (int j = i+1; j < size; j++)
@@ -85,8 +79,18 @@ class Edges{
             complete();
         }
 
-        double**get_edges() {
-            return edges;
+        double** get_edges() {
+            double** cppArray = new double*[1093];
+            for (int i = 0; i < 1093; i++) {
+                cppArray[i] = new double[1093];
+            }
+
+            for (int i = 0; i < 1093; i++) {
+                for (int j = 0; j < 1093; j++) {
+                    cppArray[i][j] = edges[i][j];
+                }
+            }
+            return cppArray;
         }
         double get_norm(){
             return normalizer;
@@ -103,7 +107,6 @@ class Edges{
         }
         ~Edges() {
             delete[] sol;
-            delete[] edges;
         }
 
 
