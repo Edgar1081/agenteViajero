@@ -49,14 +49,14 @@ void processThread(int thread_id, int number, std::mt19937 rng, int i,
                    std::shared_ptr<Bdd> bdd) {
     while (true) {
         int current_i;
-        mtx.lock(); // Lock the mutex for synchronized access to i
+        mtx.lock();
         current_i = i++;
         int lotes = distribution(rng);
         int temp = distributiontemp(rng);
         double eps = 0.0001;
         double epsP = 0.01;
         double phi = distPhi(rng)/100.0;
-        mtx.unlock(); // Unlock the mutex
+        mtx.unlock();
 
         if (current_i > number)
             break;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::vector<std::thread> threads;
-    int num_threads = std::thread::hardware_concurrency(); // Get the number of available threads
+    int num_threads = std::thread::hardware_concurrency();
 
     int i =1;
 
