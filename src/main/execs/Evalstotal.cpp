@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
 
-    double (*matrix)[1093] = ed->get_edges();
+    double** matrix = ed->get_edges();
     double norm = ed->get_norm();
     double max = ed->get_max();
     std::shared_ptr<City>* sol = ed->get_sol();

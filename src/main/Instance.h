@@ -16,7 +16,7 @@ class Instance {
         std::list<double> L;
         int size;
         int seed;
-        double (*edges)[1093];
+        double **edges;
         double normalizer;
         double max_edge = 0;
         std::mt19937 rng;
@@ -28,7 +28,7 @@ class Instance {
 
     public:
         Instance(std::shared_ptr<City>* _sol, int _size,
-                 unsigned int _seed,double (*_edges)[1093],
+                 unsigned int _seed,double **_edges,
                  double _normalizer, double _max_edge) :
             size(_size),normalizer(_normalizer),
             max_edge(_max_edge),distribution(0, size-1){
