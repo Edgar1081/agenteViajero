@@ -4,7 +4,7 @@
 
 class Edges{
     private:
-        double edges[1093][1093];
+        double edges [1093][1093];
         std::shared_ptr<City>* sol;
         std::shared_ptr<Bdd> bdd;
         double normalizer;

@@ -104,13 +104,7 @@ class Instance {
         std::tuple<std::shared_ptr<City>*,int, int> permute() {
             int i = distribution(rng);
             int j = distribution(rng);
-
-            std::copy(sol, sol+size, sol_ant);
-            swap(i,j, sol);
-
-            last_sum = actual_sum;
-            actual_sum += modify_cost(i ,j, sol_ant);
-            return std::make_tuple(sol,i,j);
+            return permute(i,j);
         }
         std::tuple<std::shared_ptr<City>*,int, int> permute(int i, int j) {
             std::copy(sol, sol+size, sol_ant);
