@@ -17,11 +17,11 @@ evaltotalfile = ['src/main/execs/Evalstotal.cpp']
 executable('fullevals', evaltotalfile, dependencies : [sqlite_dep], c_args : ['-g'])
 
 #Sweep
-sweepfile = ['src/main//execs/Sweep.cpp']
+sweepfile = ['src/main/execs/Sweep.cpp']
 executable('sweep', sweepfile, dependencies : [sqlite_dep], c_args : ['-g'])
 
 #Draw
-drawfile = ['src/main//execs/Draw.cpp']
+drawfile = ['src/main/execs/Draw.cpp']
 executable('draw', drawfile, dependencies : [sqlite_dep, draw_dep], c_args : ['-g'])
 
 #Script
@@ -29,5 +29,9 @@ runfile = ['src/main/execs/Run.cpp']
 executable('script', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
 
 #Run
-runfile = ['src/main//execs/Create_sols.cpp']
+runfile = ['src/main/execs/Create_sols.cpp']
 executable('run', runfile, dependencies : [sqlite_dep], c_args : ['-g'])
+
+#EDGES
+#runfile = ['src/main/execs/Create_sols.cpp']
+#executable('run', runfile, dependencies : [sqlite_dep], c_args : ['-g'])

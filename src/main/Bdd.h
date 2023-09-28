@@ -21,7 +21,10 @@ class Bdd {
         }
 
         ~Bdd() {
-            sqlite3_close(db);
+            if (db) {
+                sqlite3_close(db);
+                db = nullptr;
+            }
         }
 
         void printData() {

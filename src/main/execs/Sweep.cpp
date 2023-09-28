@@ -1,6 +1,6 @@
-
 #include "../Io.h"
 #include "../Heuristic.h"
+#include "../Edges.h"
 #include <memory>
 #include <random>
 #include <sqlite3.h>
@@ -13,7 +13,16 @@ int main(int argc, char *argv[]) {
     int size = input->get_size();
     int * ins = input->get_array();
 
-    std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, 0);
+    std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
+
+    double (*matrix)[1093] = ed->get_edges();
+    double norm = ed->get_norm();
+    double max = ed->get_max();
+
+    std::shared_ptr<City>* sol = ed->get_sol();
+
+    std::shared_ptr<Instance> instance =
+        std::make_shared<Instance>(sol, size, 0, matrix, norm, max);
     std::shared_ptr<City>* preSweep = instance->get_s();
     std::cout << "Pre sweep eval : "  << instance->eval(preSweep) << std::endl;
 

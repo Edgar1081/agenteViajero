@@ -1,3 +1,6 @@
+#ifndef HEURISTIC_H
+#define HEURISTIC_H
+
 #include "Instance.h"
 #include <algorithm>
 #include <iostream>
@@ -153,3 +156,4 @@ class Heuristic {
             return phi;
         }
 };
+#endif

@@ -21,7 +21,6 @@ int main(int argc, char* argv[]) {
     std::uniform_int_distribution<int> distribution(1000, 1500);
     std::uniform_int_distribution<int> distPhi(90, 95);
 
-    //./release/reproduce data/input/150.tsp -t 1 1000 8 0.0001 0,01 0.95
 
     if (std::strcmp(flag, "-s") == 0) {
         for (int i = 1; i < number + 1; i++) {
@@ -54,7 +53,7 @@ int main(int argc, char* argv[]) {
             std::cout << ins << std::endl;
 
             const char* command = ins;
-            int exitCode = system(command);
+            system(command);
         }
 
     } else if (std::strcmp(flag, "-f") == 0) {

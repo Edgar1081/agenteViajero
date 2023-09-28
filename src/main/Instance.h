@@ -1,104 +1,61 @@
+#ifndef INSTANCE_H
+#define INSTANCE_H
+
 #include <string>
 #include <list>
 #include <iomanip>
 #include <memory>
 #include <random>
 #include <algorithm>
-#include "Bdd.h"
-#include "Cost.h"
+#include "City.h"
 
 class Instance {
     private:
         std::shared_ptr<City>* sol;
         std::shared_ptr<City>* sol_ant;
         std::list<double> L;
-        double normalizer;
-        double max_edge = 0;
-        std::shared_ptr<Bdd> bdd;
         int size;
         int seed;
-        double edges[1093][1093];
+        double (*edges)[1093];
+        double normalizer;
+        double max_edge = 0;
         std::mt19937 rng;
         std::uniform_int_distribution<int> distribution;
         double actual_sum;
         double last_sum;
         std::shared_ptr<City>* init_sol;
 
-        void manage_w(int i, int j) {
-            int id_u = sol[i]->get_id();
-            int id_v = sol[j]->get_id();
-            if (id_u == id_v) {
-                edges[id_u][id_v] = 0;
-            } else {
-                int ii = std::min(id_u, id_v);
-                int jj = std::max(id_u, id_v);
-                double w = bdd->edges(ii, jj);
-                if (w != -1) {
-                    L.push_back(w);
-                }
-                edges[id_u][id_v] = edges[id_v][id_u] = w;
-                if (max_edge < w) {
-                    max_edge = w;
-                }
-            }
-        }
-
-        void complete() {
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    int city1_id = sol[i]->get_id();
-                    int city2_id = sol[j]->get_id();
-                    double w = edges[city1_id][city2_id];
-                    if(w == -1){
-                        w = Cost::delta(sol[i]->get_lat(), sol[i]->get_lon(),
-                                        sol[j]->get_lat(), sol[j]->get_lon());
-                        edges[city1_id][city2_id] =
-                        edges[city2_id][city1_id] = w * max_edge;
-                }
-                    }
-            }
-        }
-
-        void calc_norm(){
-            int length = static_cast<int>(L.size());
-            if(length < size){
-                for (const double& element : L)
-                    normalizer += element;
-            }else{
-                auto it = L.begin();
-                for (int i = 0; i < size-1 && it != L.end(); ++i, ++it) {
-                    normalizer += *it;
-                }
-            }
-        }
 
     public:
-        Instance(int* _sol, std::shared_ptr<Bdd> _bdd, int _size,
-                 unsigned int _seed) :
-            bdd(_bdd), size(_size),distribution(0, size-1){
+        Instance(std::shared_ptr<City>* _sol, int _size,
+                 unsigned int _seed,double (*_edges)[1093],
+                 double _normalizer, double _max_edge) :
+            size(_size),normalizer(_normalizer),
+            max_edge(_max_edge),distribution(0, size-1){
             rng.seed(_seed);
             seed = _seed;
             sol = new std::shared_ptr<City>[size];
             sol_ant = new std::shared_ptr<City>[size];
             init_sol = new std::shared_ptr<City>[size];
             for (int i = 0; i < size; i++) {
-                sol[i] = bdd->get_city(_sol[i]);
+                sol[i] = _sol[i];
                 sol_ant[i] = sol[i];
                 init_sol[i] = sol[i];
             }
 
-            for (int i = 0; i < 1093; i++) {
-                for (int j = 0; j < 1093; j++) {
-                    edges[i][j] = 0;
-                }
-            }
+            edges = _edges;
 
-            normalizer = 0;
-            for (int i = 0; i < size; i++) {
-                for (int j = i+1; j < size; j++) {
-                    manage_w(i, j);
-                }
-            }
+            // for (int i = 0; i < 1093; i++) {
+            //     for (int j = 0; j < 1093; j++) {
+            //         edges[i][j] = _edges[i][j];
+            //     }
+            // }
+            // normalizer = 0;
+            // for (int i = 0; i < size; i++) {
+            //     for (int j = i+1; j < size; j++) {
+            //         manage_w(i, j);
+            //     }
+            // }
 
 
             if(seed != 0){
@@ -107,10 +64,10 @@ class Instance {
                 rng.seed(seed);
             }
 
-            L.sort();
-            L.reverse();
-            calc_norm();
-            complete();
+            // L.sort();
+            // L.reverse();
+            // calc_norm();
+            // complete();
             first_cost();
             last_sum = actual_sum;
         }
@@ -332,3 +289,4 @@ class Instance {
             delete[] init_sol;
         }
 };
+#endif

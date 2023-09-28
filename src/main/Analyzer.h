@@ -6,6 +6,8 @@
 #include <dirent.h>
 #include <cmath>
 #include <sys/stat.h>
+#include "Edges.h"
+#include "Heuristic.h"
 class Analyzer {
 private:
     static std::list<std::tuple<std::string, std::string, std::string>>
@@ -85,13 +87,24 @@ private:
         double min = std::numeric_limits<double>::max();
         std::string mintsp;
 
+        int* ins = Io::to_array(std::get<1>(l.front()));
+
+        std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
+
+        double (*matrix)[1093] = ed->get_edges();
+        double norm = ed->get_norm();
+        double max = ed->get_max();
+
         for(auto tuple: l){
-            int* array = Io::to_array(std::get<1>(tuple));
             std::string name = std::get<2>(tuple) + ".tsp";
             std::string nameS = name;
-            std::shared_ptr<Instance> ins = std::make_shared<Instance>(array, bdd, size, 0);
-            int imp = ins->sweep1();
-            double cost = ins->get_cost();
+            std::shared_ptr<City>* sol = ed->get_sol();
+
+            std::shared_ptr<Instance> instance =
+                std::make_shared<Instance>(sol, size, 0, matrix, norm, max);
+
+            int imp = instance->sweep1();
+            double cost = instance->get_cost();
             nameS = "sN" + std::to_string(imp) + "_" + name;
 
             std::string filepath = dirSweep+"/"+nameS;
@@ -107,7 +120,7 @@ private:
             }
 
             outputFile << std::setprecision(16);
-            std::shared_ptr<City> * min = ins->get_s();
+            std::shared_ptr<City> * min = instance->get_s();
             for(int i = 0; i<size; i++){
                 outputFile << min[i] -> get_id();
                 if(i != size-1)

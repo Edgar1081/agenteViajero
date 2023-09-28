@@ -1,3 +1,7 @@
+
+#ifndef CITY_H
+#define CITY_H
+
 #include <string>
 
 class City {
@@ -18,3 +22,4 @@ class City {
         double get_lat() const { return lat; }
         double get_lon() const { return lon; }
 };
+#endif

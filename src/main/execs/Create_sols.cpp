@@ -1,12 +1,13 @@
 #include "../Io.h"
-#include "../Heuristic.h"
 #include "../Analyzer.h"
+#include "../Heuristic.h"
 #include <memory>
 #include <sys/stat.h>
 #include <random>
 #include <sqlite3.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <iomanip>
 
 bool directoryExists(const std::string& path) {
     struct stat st;
@@ -59,6 +60,13 @@ int main(int argc, char *argv[]) {
     int size = input->get_size();
     int * ins = input->get_array();
 
+    std::shared_ptr<Edges> ed = std::make_shared<Edges>(ins, bdd, size);
+
+    double (*matrix)[1093] = ed->get_edges();
+    double norm = ed->get_norm();
+    double max = ed->get_max();
+
+
     std::mt19937 rng;
     rng.seed(number);
     std::uniform_int_distribution<int> distribution(1000, 1500);
@@ -100,7 +108,12 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, i);
+
+        std::shared_ptr<City>* sol = ed->get_sol();
+
+        std::shared_ptr<Instance> instance =
+            std::make_shared<Instance>(sol, size, i, matrix, norm, max);
+
         int lotes = distribution(rng);
         int temp = distributiontemp(rng);
         double eps = 0.0001;
