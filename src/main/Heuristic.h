@@ -119,6 +119,7 @@ class Heuristic {
             std::shared_ptr<City>* s = ins->get_s();
             std::shared_ptr<City>* solmin = s;
             double min_cost = ins->get_cost();
+            std::cout << min_cost << std::endl;
             double p = 0;
             int c = 0;
             while(init_temp > epsilon){
