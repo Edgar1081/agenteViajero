@@ -7,6 +7,12 @@
 #include <sqlite3.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <thread>
+#include <mutex>
+#include <vector>
+
+
+std::mutex mtx;
 
 bool directoryExists(const std::string& path) {
     struct stat st;
@@ -33,6 +39,55 @@ bool removeDirectory(const std::string& path) {
     }
     return rmdir(path.c_str()) == 0;
 }
+
+
+void processThread(int thread_id, int number, std::mt19937 rng, int i,
+                   std::uniform_int_distribution<int> distribution,
+                   std::uniform_int_distribution<int> distributiontemp,
+                   std::uniform_int_distribution<int> distPhi,
+                   std::string dir, int size, std::string flag, int*ins,
+                   std::shared_ptr<Bdd> bdd) {
+    while (true) {
+        int current_i;
+        mtx.lock(); // Lock the mutex for synchronized access to i
+        current_i = i++;
+        int lotes = distribution(rng);
+        int temp = distributiontemp(rng);
+        double eps = 0.0001;
+        double epsP = 0.01;
+        double phi = distPhi(rng)/100.0;
+        mtx.unlock(); // Unlock the mutex
+
+        if (current_i > number)
+            break;
+
+        std::string filename = std::to_string(current_i);
+        std::string filext = filename + ".txt";
+        std::string filepath = dir + "/" + filext;
+
+        std::ofstream outputFile(filepath);
+        if (!outputFile.is_open()) {
+            std::cerr << "Failed to open file for writing." << std::endl;
+            return;
+        }
+
+        std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, current_i);
+
+        std::shared_ptr<Heuristic> h
+            = std::make_shared<Heuristic>(instance, lotes, temp, eps, epsP, phi, size, false);
+
+        auto [first, min] = h->apu();
+        double eval = instance->eval(min);
+
+        outputFile << std::setprecision(16);
+        if (flag == "-s") {
+            Analyzer::write(h, instance, outputFile, size, eval, min);
+        }
+
+        outputFile.close();
+    }
+}
+
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
@@ -87,49 +142,19 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int i = 1;
-    int c = 1;
-    while(i < number+1){
-        std::string filename = std::to_string(c);
-        std::string filext = filename + ".txt";
-        std::string filepath = dir + "/" + filext;
+    std::vector<std::thread> threads;
+    int num_threads = std::thread::hardware_concurrency(); // Get the number of available threads
 
-        std::ofstream outputFile(filepath);
-        if (!outputFile.is_open()) {
-            std::cerr << "Failed to open file for writing." << std::endl;
-            return 1;
-        }
+    int i =1;
 
-        std::shared_ptr<Instance> instance = std::make_shared<Instance>(ins, bdd, size, i);
-        int lotes = distribution(rng);
-        int temp = distributiontemp(rng);
-        double eps = 0.0001;
-        double epsP = 0.01;
-        double phi = distPhi(rng)/100.0;
-
-        std::shared_ptr<Heuristic> h
-            = std::make_shared<Heuristic>(instance, lotes, temp, eps, epsP, phi, size, false);
-
-
-        auto [first, min] = h->apu();
-        double eval = instance->eval(min);
-
-        outputFile << std::setprecision(16);
-        if(flag == "-s"){
-            i++;
-            Analyzer::write(h, instance, outputFile, size, eval, min);
-        }
-
-        c++;
-        if(flag == "-f")
-            if (instance->eval(min) < 1){
-                i++;
-                Analyzer::write(h, instance, outputFile, size, eval, min);
-            }
-
-        outputFile.close();
+    for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
+threads.emplace_back(processThread, thread_id, number, std::ref(rng), i, std::ref(distribution),
+                     std::ref(distributiontemp), std::ref(distPhi), dir, size, flag, std::ref(ins), bdd);
     }
 
+    for (auto& thread : threads) {
+        thread.join();
+    }
     Analyzer::sort(dir, bdd, size);
 
     return 0;
